@@ -38,7 +38,7 @@ CDP Devops Portal 是一个基于 React Hooks、Vite 和 TypeScript 的中后台
 ### 安装依赖
 
 ```bash
-# 启用 corepack（Node.js 16.17.0 及以上版本）
+# 启用 corepack（Node.js 18.X 及以上版本）
 corepack enable
 
 # 安装依赖

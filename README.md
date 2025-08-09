@@ -38,7 +38,7 @@ CDP Devops Portal is a middle and back-office solution based on React Hooks, Vit
 ### Install Dependencies
 
 ```bash
-# Enable corepack (Node.js 16.17.0 and above)
+# Enable corepack (Node.js 18.X and above)
 corepack enable/disabled
 
 # Install dependencies
