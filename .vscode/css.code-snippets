@@ -1,0 +1,12 @@
+{
+	"CSS Comment": {
+		"prefix": "comment",
+		"body": ["/* $1 */"],
+		"description": "CSS comment that won't be wrapped"
+	},
+	"CSS Inline Comment": {
+		"prefix": "icomment",
+		"body": ["$1; /* $2 */"],
+		"description": "CSS property with inline comment"
+	}
+}
