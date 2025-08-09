@@ -1,0 +1,42 @@
+/* iframe组件的滚动条样式 */
+.iframe-container {
+  width: 100%; /* 宽度占满容器 */
+  height: 100%; /* 高度占满容器 */
+  overflow: auto; /* 只在内容超出时显示滚动条 */
+  padding: 16px; /* 对应p-4 */
+  border-radius: 0.125rem; /* 对应rounded-sm */
+  position: relative; /* 建立定位上下文 */
+  display: flex; /* 使用flex布局 */
+  flex-direction: column; /* 垂直方向排列 */
+}
+
+/* 自定义滚动条样式 */
+.iframe-container::-webkit-scrollbar {
+	width: 8px; /* 滚动条宽度 */
+	height: 8px; /* 滚动条高度 */
+}
+
+.iframe-container::-webkit-scrollbar-track {
+	background: #f1f1f1; /* 滚动条轨道背景色 */
+	border-radius: 4px; /* 轨道圆角 */
+}
+
+.iframe-container::-webkit-scrollbar-thumb {
+	background: #888; /* 滚动条滑块颜色 */
+	border-radius: 4px; /* 滑块圆角 */
+}
+
+.iframe-container::-webkit-scrollbar-thumb:hover {
+	background: #555; /* 滑块悬停颜色 */
+}
+
+/* iframe样式 */
+.iframe-content {
+  width: 100%; /* 宽度占满容器 */
+  height: 100%; /* 高度占满容器 */
+  border: none; /* 移除边框 */
+  display: block; /* 确保iframe正确显示 */
+  max-width: 100%; /* 限制最大宽度 */
+  max-height: 100%; /* 限制最大高度 */
+  object-fit: contain; /* 保持内容比例并适应容器 */
+}
