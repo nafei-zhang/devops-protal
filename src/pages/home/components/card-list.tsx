@@ -62,7 +62,6 @@ export default function CardList() {
 											decimals={0}
 											prefix=""
 											suffix=""
-											enableScrollSpy
 											className="text-2xl"
 										/>
 									</div>

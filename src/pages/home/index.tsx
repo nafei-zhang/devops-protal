@@ -34,7 +34,7 @@ export default function Home() {
 				<Col span={24}>
 					<Card
 						title={<Typography.Title level={4} style={{ margin: 0 }}>{t("home.pendingCRTitle")}</Typography.Title>}
-						bodyStyle={{ padding: "16px" }}
+						styles={{ body: { padding: "16px" } }}
 					>
 						<CardList />
 					</Card>

@@ -1,4 +1,4 @@
-import { InboxOutlined, UploadOutlined } from "@ant-design/icons";
+import { InboxOutlined } from "@ant-design/icons";
 import { Button, Checkbox, DatePicker, Form, Input, Modal, Radio, Select, Upload } from "antd";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -204,27 +204,10 @@ export const SitEnvironmentModal: React.FC<BaseModalProps> = ({
 			className={classes.stepModal}
 		>
 			<div className={classes.modalContent}>
-				<Form layout="vertical" className={classes.formContainer}>
-					<Form.Item label="SIT Environment" name="sitEnvironment">
-						<Select
-							defaultValue="sit1"
-							options={[
-								{ label: "SIT 1", value: "sit1" },
-								{ label: "SIT 2", value: "sit2" },
-								{ label: "SIT 3", value: "sit3" },
-							]}
-						/>
-					</Form.Item>
-					<Form.Item label="Schedule Start Date Time" name="startDateTime">
-						<DatePicker showTime style={{ width: "100%" }} />
-					</Form.Item>
-					<Form.Item label="Test Cases" name="testCases">
-						<Input.TextArea rows={4} placeholder="Enter test cases to run" />
-					</Form.Item>
-					<Form.Item label="Regression Test" name="regressionTest" valuePropName="checked">
-						<Checkbox>Run Regression Tests</Checkbox>
-					</Form.Item>
-				</Form>
+				{/* 提示文本 */}
+				<div className={classes.formDescription} style={{ marginBottom: "20px" }}>
+					<p>{t("pipeline.detail.sitModalTip")}</p>
+				</div>
 				<div className={classes.modalFooter}>
 					<div className={classes.actionButtons}>
 						<Button onClick={onPending} className={classes.pendingButton}>
@@ -243,9 +226,7 @@ export const SitEnvironmentModal: React.FC<BaseModalProps> = ({
 // 发布签核与准备模态框
 export const ReleaseSignoffModal: React.FC<BaseModalProps> = ({
 	open,
-	title,
 	onCancel,
-	onPending,
 	onContinue,
 }) => {
 	const { t } = useTranslation();
@@ -253,7 +234,7 @@ export const ReleaseSignoffModal: React.FC<BaseModalProps> = ({
 
 	return (
 		<Modal
-			title={title}
+			title={t("pipeline.detail.enterCRInfo")}
 			open={open}
 			onCancel={onCancel}
 			footer={null}
@@ -262,39 +243,48 @@ export const ReleaseSignoffModal: React.FC<BaseModalProps> = ({
 			className={classes.stepModal}
 		>
 			<div className={classes.modalContent}>
-				<Form layout="vertical" className={classes.formContainer}>
-					<Form.Item label="Approver" name="approver">
-						<Select
-							mode="multiple"
-							placeholder="Select approvers"
-							options={[
-								{ label: "John Doe", value: "john" },
-								{ label: "Jane Smith", value: "jane" },
-								{ label: "Bob Johnson", value: "bob" },
-							]}
-						/>
+				<Form layout="vertical" className={classes.formContainer} style={{ padding: "0 10px" }}>
+					<Form.Item
+						label={t("pipeline.detail.crForm.scheduleStartDateTime")}
+						name="startDateTime"
+						rules={[{ required: true, message: t("pipeline.detail.crForm.validationMessages.scheduleStartDateTime") }]}
+					>
+						<DatePicker showTime style={{ width: "100%" }} />
 					</Form.Item>
-					<Form.Item label="Release Notes" name="releaseNotes">
-						<Input.TextArea rows={4} />
+					<Form.Item
+						label={t("pipeline.detail.crForm.duration")}
+						name="duration"
+						rules={[{ required: true, message: t("pipeline.detail.crForm.validationMessages.duration") }]}
+					>
+						<Input placeholder={t("pipeline.detail.crForm.placeholders.duration")} />
 					</Form.Item>
-					<Form.Item label="Change Purpose" name="changePurpose">
-						<Input />
+					<Form.Item
+						label={t("pipeline.detail.crForm.changePurpose")}
+						name="changePurpose"
+						rules={[{ required: true, message: t("pipeline.detail.crForm.validationMessages.changePurpose") }]}
+					>
+						<Input placeholder={t("pipeline.detail.crForm.placeholders.changePurpose")} />
 					</Form.Item>
-					<Form.Item label="Supporting Documents" name="supportingDocs">
-						<Upload>
-							<Button icon={<UploadOutlined />}>Upload Files</Button>
-						</Upload>
+					<Form.Item
+						label={t("pipeline.detail.crForm.shortDescription")}
+						name="shortDescription"
+						rules={[{ required: true, message: t("pipeline.detail.crForm.validationMessages.shortDescription") }]}
+					>
+						<Input.TextArea rows={3} placeholder={t("pipeline.detail.crForm.placeholders.shortDescription")} />
+					</Form.Item>
+					<Form.Item name="isEmergency" valuePropName="checked">
+						<Checkbox>{t("pipeline.detail.crForm.isEmergency")}</Checkbox>
 					</Form.Item>
 				</Form>
-				<div className={classes.modalFooter}>
-					<div className={classes.actionButtons}>
-						<Button onClick={onPending} className={classes.pendingButton}>
-							{t("pipeline.detail.status.pending")}
-						</Button>
-						<Button type="primary" onClick={onContinue}>
-							{t("pipeline.detail.status.continue")}
-						</Button>
-					</div>
+				<div className={classes.modalFooter} style={{ marginTop: "10px", paddingTop: "15px" }}>
+					<Button
+						type="primary"
+						onClick={onContinue}
+						style={{ marginLeft: "auto" }}
+						size="large"
+					>
+						{t("pipeline.detail.crForm.submit")}
+					</Button>
 				</div>
 			</div>
 		</Modal>
@@ -323,6 +313,10 @@ export const CteDeploymentModal: React.FC<BaseModalProps> = ({
 			className={classes.stepModal}
 		>
 			<div className={classes.modalContent}>
+				{/* 添加提示文本 */}
+				<div className={classes.formDescription} style={{ marginBottom: "20px" }}>
+					<p>{t("pipeline.detail.sitModalTip")}</p>
+				</div>
 				<Form layout="vertical" className={classes.formContainer}>
 					<Form.Item label="CTE Environment" name="cteEnvironment">
 						<Select
@@ -384,6 +378,10 @@ export const PrepareFinalCRModal: React.FC<BaseModalProps> = ({
 			className={classes.stepModal}
 		>
 			<div className={classes.modalContent}>
+				{/* 添加提示文本 */}
+				<div className={classes.formDescription} style={{ marginBottom: "20px" }}>
+					<p>{t("pipeline.detail.sitModalTip")}</p>
+				</div>
 				<Form layout="vertical" className={classes.formContainer}>
 					<Form.Item label="CR Number" name="crNumber">
 						<Input />
@@ -452,6 +450,10 @@ export const ProductionDeploymentModal: React.FC<BaseModalProps> = ({
 			className={classes.stepModal}
 		>
 			<div className={classes.modalContent}>
+				{/* 添加提示文本 */}
+				<div className={classes.formDescription} style={{ marginBottom: "20px" }}>
+					<p>{t("pipeline.detail.sitModalTip")}</p>
+				</div>
 				<Form layout="vertical" className={classes.formContainer}>
 					<Form.Item label="Schedule Start Date Time" name="startDateTime">
 						<DatePicker showTime style={{ width: "100%" }} />
@@ -516,6 +518,10 @@ export const CompletedModal: React.FC<BaseModalProps> = ({
 			className={classes.stepModal}
 		>
 			<div className={classes.modalContent}>
+				{/* 添加提示文本 */}
+				<div className={classes.formDescription} style={{ marginBottom: "20px" }}>
+					<p>{t("pipeline.detail.sitModalTip")}</p>
+				</div>
 				<Form layout="vertical" className={classes.formContainer}>
 					<Form.Item label="Completion Date" name="completionDate">
 						<DatePicker style={{ width: "100%" }} />
@@ -570,6 +576,10 @@ export const DefaultModal: React.FC<BaseModalProps> = ({
 			className={classes.stepModal}
 		>
 			<div className={classes.modalContent}>
+				{/* 添加提示文本 */}
+				<div className={classes.formDescription} style={{ marginBottom: "20px" }}>
+					<p>{t("pipeline.detail.sitModalTip")}</p>
+				</div>
 				<Form layout="vertical" className={classes.formContainer}>
 					<Form.Item label="Schedule Start Date Time" name="startDateTime">
 						<DatePicker showTime style={{ width: "100%" }} />

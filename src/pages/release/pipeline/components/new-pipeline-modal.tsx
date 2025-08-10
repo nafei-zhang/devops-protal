@@ -98,7 +98,9 @@ export default function NewPipelineModal({
 			autoFocusFirstInput
 			modalProps={{
 				destroyOnHidden: true,
-				bodyStyle: { maxHeight: "600px", overflow: "auto" },
+				styles: {
+					body: { maxHeight: "600px", overflow: "auto" },
+				},
 			}}
 			width={700}
 			onFinish={onFinish}

@@ -7,10 +7,17 @@ export async function fetchApiDetail(id: string) {
 
 	// 这里应该是从后端获取数据
 	// 为了演示，返回一些模拟数据
+	// 状态值对应关系：
+	// 0: Pending (橙色)
+	// 1: Running (绿色)
+	// 2: Completed (蓝色)
+	// 3: Failed (红色)
+	// 4: Canceled (灰色)
+	// 5: Skipped (浅灰色)
 	const mockApiData: ApiItemType[] = [
 		{
 			id: "API001",
-			status: 1,
+			status: 0, // Pending
 			apiName: "用户管理API",
 			apiVersion: "v1.0.0",
 			stage: "生产",
@@ -21,7 +28,7 @@ export async function fetchApiDetail(id: string) {
 		},
 		{
 			id: "API002",
-			status: 0,
+			status: 1, // Running
 			apiName: "订单管理API",
 			apiVersion: "v2.1.0",
 			stage: "测试",
@@ -32,7 +39,7 @@ export async function fetchApiDetail(id: string) {
 		},
 		{
 			id: "API003",
-			status: 1,
+			status: 2, // Completed
 			apiName: "支付管理API",
 			apiVersion: "v1.5.0",
 			stage: "开发",
@@ -40,6 +47,39 @@ export async function fetchApiDetail(id: string) {
 			createdDate: "2023-07-10",
 			branch: "feature/payment",
 			jiraId: "JIRA-003",
+		},
+		{
+			id: "API004",
+			status: 3, // Failed
+			apiName: "库存管理API",
+			apiVersion: "v1.2.0",
+			stage: "测试",
+			creator: "赵六",
+			createdDate: "2023-08-05",
+			branch: "feature/inventory",
+			jiraId: "JIRA-004",
+		},
+		{
+			id: "API005",
+			status: 4, // Canceled
+			apiName: "消息通知API",
+			apiVersion: "v0.9.0",
+			stage: "开发",
+			creator: "钱七",
+			createdDate: "2023-09-12",
+			branch: "feature/notification",
+			jiraId: "JIRA-005",
+		},
+		{
+			id: "API006",
+			status: 5, // Skipped
+			apiName: "报表统计API",
+			apiVersion: "v1.1.0",
+			stage: "生产",
+			creator: "孙八",
+			createdDate: "2023-10-01",
+			branch: "feature/reports",
+			jiraId: "JIRA-006",
 		},
 	];
 
@@ -77,10 +117,17 @@ export async function fetchApiList(params: any) {
 
 	// 这里应该是从后端获取数据
 	// 为了演示，返回一些模拟数据
+	// 状态值对应关系：
+	// 0: Pending (橙色)
+	// 1: Running (绿色)
+	// 2: Completed (蓝色)
+	// 3: Failed (红色)
+	// 4: Canceled (灰色)
+	// 5: Skipped (浅灰色)
 	const mockApiData: ApiItemType[] = [
 		{
 			id: "API001",
-			status: 1,
+			status: 0, // Pending
 			apiName: "用户管理API",
 			apiVersion: "v1.0.0",
 			stage: "生产",
@@ -91,7 +138,7 @@ export async function fetchApiList(params: any) {
 		},
 		{
 			id: "API002",
-			status: 0,
+			status: 1, // Running
 			apiName: "订单管理API",
 			apiVersion: "v2.1.0",
 			stage: "测试",
@@ -102,7 +149,7 @@ export async function fetchApiList(params: any) {
 		},
 		{
 			id: "API003",
-			status: 1,
+			status: 2, // Completed
 			apiName: "支付管理API",
 			apiVersion: "v1.5.0",
 			stage: "开发",
@@ -110,6 +157,39 @@ export async function fetchApiList(params: any) {
 			createdDate: "2023-07-10",
 			branch: "feature/payment",
 			jiraId: "JIRA-003",
+		},
+		{
+			id: "API004",
+			status: 3, // Failed
+			apiName: "库存管理API",
+			apiVersion: "v1.2.0",
+			stage: "测试",
+			creator: "赵六",
+			createdDate: "2023-08-05",
+			branch: "feature/inventory",
+			jiraId: "JIRA-004",
+		},
+		{
+			id: "API005",
+			status: 4, // Canceled
+			apiName: "消息通知API",
+			apiVersion: "v0.9.0",
+			stage: "开发",
+			creator: "钱七",
+			createdDate: "2023-09-12",
+			branch: "feature/notification",
+			jiraId: "JIRA-005",
+		},
+		{
+			id: "API006",
+			status: 5, // Skipped
+			apiName: "报表统计API",
+			apiVersion: "v1.1.0",
+			stage: "生产",
+			creator: "孙八",
+			createdDate: "2023-10-01",
+			branch: "feature/reports",
+			jiraId: "JIRA-006",
 		},
 	];
 

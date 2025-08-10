@@ -40,6 +40,46 @@ export default function Pipeline() {
 			title: t("common.status"),
 			width: 80,
 			render: (_, record) => {
+				// 状态值对应关系：
+				// 0: Pending (橙色)
+				// 1: Running (绿色)
+				// 2: Completed (蓝色)
+				// 3: Failed (红色)
+				// 4: Canceled (灰色)
+				// 5: Skipped (浅灰色)
+				let bgColorClass = "";
+				let statusTitle = "";
+
+				switch (record.status) {
+					case 0: // Pending
+						bgColorClass = "bg-orange-500"; // 橙色
+						statusTitle = "Pending";
+						break;
+					case 1: // Running
+						bgColorClass = "bg-green-500"; // 绿色
+						statusTitle = "Running";
+						break;
+					case 2: // Completed
+						bgColorClass = "bg-blue-500"; // 蓝色
+						statusTitle = "Completed";
+						break;
+					case 3: // Failed
+						bgColorClass = "bg-red-500"; // 红色
+						statusTitle = "Failed";
+						break;
+					case 4: // Canceled
+						bgColorClass = "bg-gray-500"; // 灰色
+						statusTitle = "Canceled";
+						break;
+					case 5: // Skipped
+						bgColorClass = "bg-gray-300"; // 浅灰色
+						statusTitle = "Skipped";
+						break;
+					default:
+						bgColorClass = "bg-gray-400"; // 默认灰色
+						statusTitle = "Unknown";
+				}
+
 				return (
 					<div
 						className="flex items-center justify-center cursor-pointer"
@@ -48,10 +88,10 @@ export default function Pipeline() {
 								navigate(`/release/pipeline/detail/${record.id}`);
 							}
 						}}
-						title={t("pipeline.detail.clickToViewDetails")}
+						title={`${statusTitle} - ${t("pipeline.detail.clickToViewDetails")}`}
 					>
 						<div
-							className={`w-3 h-3 rounded-full ${record.status === 1 ? "bg-green-500" : "bg-gray-400"}`}
+							className={`w-3 h-3 rounded-full ${bgColorClass}`}
 						/>
 					</div>
 				);

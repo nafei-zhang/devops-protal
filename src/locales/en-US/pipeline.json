@@ -54,6 +54,27 @@
 			"skipped": "Skipped",
 			"continue": "Continue"
 		},
+		"sitModalTip": "Click Pending will not continue deployment, click Continue will proceed with deployment",
+		"enterCRInfo": "Enter Information for CR",
+		"crForm": {
+			"scheduleStartDateTime": "Schedule Start Date Time",
+			"duration": "Duration",
+			"changePurpose": "Change Purpose",
+			"shortDescription": "Short Description",
+			"isEmergency": "Is Emergency",
+			"submit": "Submit",
+			"placeholders": {
+				"duration": "e.g. 2 hours",
+				"changePurpose": "Brief purpose of this change",
+				"shortDescription": "Detailed description of the change"
+			},
+			"validationMessages": {
+				"scheduleStartDateTime": "Please select start date and time",
+				"duration": "Please input duration",
+				"changePurpose": "Please input change purpose",
+				"shortDescription": "Please input description"
+			}
+		},
 		"steps": {
 			"start": "Start",
 			"staticScanning": "Static Scanning & Image Build",

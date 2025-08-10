@@ -31,11 +31,13 @@ type StepStatusType = "pending" | "running" | "completed" | "failed" | "canceled
 
 // 步骤属性类型
 interface StepProps {
-	title: string
-	description: string
-	customStatus: StepStatusType
-	status: "wait" | "process" | "finish" | "error"
-	icon: React.ReactNode
+	"title": string
+	"description": string
+	"customStatus": StepStatusType
+	"status": "wait" | "process" | "finish" | "error"
+	"icon": React.ReactNode
+	// 添加data属性用于存储自定义状态
+	"data-custom-status"?: StepStatusType
 }
 
 // 自定义图标组件
@@ -198,6 +200,7 @@ export default function PipelineDetail() {
 			updatedSteps[stepIndex].customStatus = newStatus;
 			updatedSteps[stepIndex].status = mapCustomStatusToAntd(newStatus);
 			updatedSteps[stepIndex].icon = <CustomStepIcon status={newStatus} />;
+			updatedSteps[stepIndex]["data-custom-status"] = newStatus;
 		}
 		return updatedSteps;
 	};
@@ -238,6 +241,7 @@ export default function PipelineDetail() {
 			updatedSteps[stepIndex].customStatus = newStatus;
 			updatedSteps[stepIndex].status = mapCustomStatusToAntd(newStatus);
 			updatedSteps[stepIndex].icon = <CustomStepIcon status={newStatus} />;
+			updatedSteps[stepIndex]["data-custom-status"] = newStatus;
 
 			// 更新步骤数组
 			setPipelineSteps(updatedSteps);
@@ -284,45 +288,49 @@ export default function PipelineDetail() {
 			// 更新步骤详情
 			setStepDetails(getStepDetails(current));
 
-			// 不显示pipeline details
-			setShowPipelineDetails(false);
-
 			// 设置模态框标题
 			setModalTitle(pipelineSteps[current]?.title || "");
 
 			// 关闭所有模态框
 			closeAllModals();
 
-			// 根据当前步骤显示对应的模态框
+			// 根据当前步骤决定是显示模态框还是直接显示pipeline details
 			switch (current) {
-				case 0: // 开始步骤
-					setStartModalVisible(true);
+				case 0: // 开始步骤 - 直接显示pipeline details
+					setShowPipelineDetails(true);
 					break;
-				case 1: // 静态扫描与镜像构建
-					setStaticScanningModalVisible(true);
+				case 1: // 静态扫描与镜像构建 - 直接显示pipeline details
+					setShowPipelineDetails(true);
 					break;
-				case 2: // 开发部署与Cyberflows DAST
-					setDevDeploymentModalVisible(true);
+				case 2: // 开发部署与Cyberflows DAST - 直接显示pipeline details
+					setShowPipelineDetails(true);
 					break;
-				case 3: // SIT环境流程
+				case 3: // SIT环境流程 - 显示模态框
+					setShowPipelineDetails(false);
 					setSitEnvironmentModalVisible(true);
 					break;
-				case 4: // 发布签核与准备
+				case 4: // 发布签核与准备 - 显示模态框
+					setShowPipelineDetails(false);
 					setReleaseSignoffModalVisible(true);
 					break;
-				case 5: // CTE/预生产部署
+				case 5: // CTE/预生产部署 - 显示模态框
+					setShowPipelineDetails(false);
 					setCteDeploymentModalVisible(true);
 					break;
-				case 6: // 准备最终CR
+				case 6: // 准备最终CR - 显示模态框
+					setShowPipelineDetails(false);
 					setPrepareFinalCRModalVisible(true);
 					break;
-				case 7: // 生产部署
+				case 7: // 生产部署 - 显示模态框
+					setShowPipelineDetails(false);
 					setProductionDeploymentModalVisible(true);
 					break;
-				case 8: // 完成
+				case 8: // 完成 - 显示模态框
+					setShowPipelineDetails(false);
 					setCompletedModalVisible(true);
 					break;
 				default: // 默认模态框
+					setShowPipelineDetails(false);
 					setDefaultModalVisible(true);
 					break;
 			}
@@ -339,60 +347,68 @@ export default function PipelineDetail() {
 		// 创建新的步骤数组 - 根据第一张图片中的流水线步骤
 		const updatedSteps: StepProps[] = [
 			{
-				title: t("pipeline.detail.steps.start"),
-				description: "",
-				customStatus: "completed" as StepStatusType,
-				status: mapCustomStatusToAntd("completed"),
-				icon: <CustomStepIcon status="completed" />,
+				"title": t("pipeline.detail.steps.start"),
+				"description": "",
+				"customStatus": "completed" as StepStatusType,
+				"status": mapCustomStatusToAntd("completed"),
+				"icon": <CustomStepIcon status="completed" />,
+				"data-custom-status": "completed",
 			},
 			{
-				title: t("pipeline.detail.steps.staticScanning"),
-				description: "",
-				customStatus: "running" as StepStatusType,
-				status: mapCustomStatusToAntd("running"),
-				icon: <CustomStepIcon status="running" />,
+				"title": t("pipeline.detail.steps.staticScanning"),
+				"description": "",
+				"customStatus": "running" as StepStatusType,
+				"status": mapCustomStatusToAntd("running"),
+				"icon": <CustomStepIcon status="running" />,
+				"data-custom-status": "running",
 			},
 			{
-				title: t("pipeline.detail.steps.devDeployment"),
-				description: "",
-				customStatus: "pending" as StepStatusType,
-				status: mapCustomStatusToAntd("pending"),
-				icon: <CustomStepIcon status="pending" />,
+				"title": t("pipeline.detail.steps.devDeployment"),
+				"description": "",
+				"customStatus": "pending" as StepStatusType,
+				"status": mapCustomStatusToAntd("pending"),
+				"icon": <CustomStepIcon status="pending" />,
+				"data-custom-status": "pending",
 			},
 			{
-				title: t("pipeline.detail.steps.sitEnvironment"),
-				description: "",
-				customStatus: "pending" as StepStatusType,
-				status: mapCustomStatusToAntd("pending"),
-				icon: <CustomStepIcon status="pending" />,
+				"title": t("pipeline.detail.steps.sitEnvironment"),
+				"description": "",
+				"customStatus": "pending" as StepStatusType,
+				"status": mapCustomStatusToAntd("pending"),
+				"icon": <CustomStepIcon status="pending" />,
+				"data-custom-status": "pending",
 			},
 			{
-				title: t("pipeline.detail.steps.releaseSignoff"),
-				description: "",
-				customStatus: "pending" as StepStatusType,
-				status: mapCustomStatusToAntd("pending"),
-				icon: <CustomStepIcon status="pending" />,
+				"title": t("pipeline.detail.steps.releaseSignoff"),
+				"description": "",
+				"customStatus": "pending" as StepStatusType,
+				"status": mapCustomStatusToAntd("pending"),
+				"icon": <CustomStepIcon status="pending" />,
+				"data-custom-status": "pending",
 			},
 			{
-				title: t("pipeline.detail.steps.cteDeployment"),
-				description: "",
-				customStatus: "pending" as StepStatusType,
-				status: mapCustomStatusToAntd("pending"),
-				icon: <CustomStepIcon status="pending" />,
+				"title": t("pipeline.detail.steps.cteDeployment"),
+				"description": "",
+				"customStatus": "pending" as StepStatusType,
+				"status": mapCustomStatusToAntd("pending"),
+				"icon": <CustomStepIcon status="pending" />,
+				"data-custom-status": "pending",
 			},
 			{
-				title: t("pipeline.detail.steps.prepareFinalCR"),
-				description: "",
-				customStatus: "pending" as StepStatusType,
-				status: mapCustomStatusToAntd("pending"),
-				icon: <CustomStepIcon status="pending" />,
+				"title": t("pipeline.detail.steps.prepareFinalCR"),
+				"description": "",
+				"customStatus": "pending" as StepStatusType,
+				"status": mapCustomStatusToAntd("pending"),
+				"icon": <CustomStepIcon status="pending" />,
+				"data-custom-status": "pending",
 			},
 			{
-				title: t("pipeline.detail.steps.productionDeployment"),
-				description: "",
-				customStatus: "pending" as StepStatusType,
-				status: mapCustomStatusToAntd("pending"),
-				icon: <CustomStepIcon status="pending" />,
+				"title": t("pipeline.detail.steps.productionDeployment"),
+				"description": "",
+				"customStatus": "pending" as StepStatusType,
+				"status": mapCustomStatusToAntd("pending"),
+				"icon": <CustomStepIcon status="pending" />,
+				"data-custom-status": "pending",
 			},
 			{
 				title: t("pipeline.detail.steps.completed"),
@@ -403,12 +419,6 @@ export default function PipelineDetail() {
 			},
 		];
 
-		// 设置当前步骤为正在运行的步骤
-		const runningStepIndex = updatedSteps.findIndex(step => step.customStatus === "running");
-		if (runningStepIndex !== -1) {
-			setCurrentStep(runningStepIndex);
-		}
-
 		return updatedSteps;
 	};
 
@@ -417,6 +427,17 @@ export default function PipelineDetail() {
 		// 模拟步骤状态变化
 		const updatedSteps = simulateStepStatusChange();
 		setPipelineSteps(updatedSteps);
+
+		// 找到Running状态的步骤并自动显示其详情
+		const runningStepIndex = updatedSteps.findIndex(step => step.customStatus === "running");
+		if (runningStepIndex !== -1) {
+			// 设置当前步骤为Running状态的步骤
+			setCurrentStep(runningStepIndex);
+			// 设置模态框标题
+			setModalTitle(updatedSteps[runningStepIndex]?.title || "");
+			// 显示pipeline details
+			setShowPipelineDetails(true);
+		}
 	}, [t]);
 
 	// 处理Pending按钮点击
@@ -658,7 +679,11 @@ export default function PipelineDetail() {
 										<div className={classes.stepsContainer}>
 											<Steps
 												current={currentStep}
-												items={pipelineSteps}
+												items={pipelineSteps.map((step) => {
+													// 创建一个新对象，不包含customStatus属性
+													const { customStatus, ...stepWithoutCustomStatus } = step;
+													return stepWithoutCustomStatus;
+												})}
 												direction="horizontal"
 												labelPlacement="vertical"
 												onChange={handleStepClick}

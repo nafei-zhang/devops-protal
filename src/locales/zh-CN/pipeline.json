@@ -54,6 +54,27 @@
 			"skipped": "已跳过",
 			"continue": "继续"
 		},
+		"sitModalTip": "点击Pending部署将不会继续，点击Continue会持续部署",
+		"enterCRInfo": "输入CR信息",
+		"crForm": {
+			"scheduleStartDateTime": "计划开始日期时间",
+			"duration": "持续时间",
+			"changePurpose": "变更目的",
+			"shortDescription": "简短描述",
+			"isEmergency": "是否紧急",
+			"submit": "提交",
+			"placeholders": {
+				"duration": "例如：2小时",
+				"changePurpose": "此次变更的简要目的",
+				"shortDescription": "变更的详细描述"
+			},
+			"validationMessages": {
+				"scheduleStartDateTime": "请选择开始日期和时间",
+				"duration": "请输入持续时间",
+				"changePurpose": "请输入变更目的",
+				"shortDescription": "请输入描述"
+			}
+		},
 		"steps": {
 			"start": "开始",
 			"staticScanning": "静态扫描与镜像构建",
