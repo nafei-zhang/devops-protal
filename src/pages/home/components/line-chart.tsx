@@ -46,8 +46,8 @@ export default function LineChart() {
 			trigger: "axis",
 			axisPointer: { type: "cross" },
 			textStyle: {
-				fontWeight: "normal"
-			}
+				fontWeight: "normal",
+			},
 		},
 		series: [
 			{

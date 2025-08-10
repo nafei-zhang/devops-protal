@@ -1,7 +1,7 @@
 import type { ColProps } from "antd";
 
 import { BasicContent } from "#src/components";
-import { Col, Row, Typography, Alert, Card } from "antd";
+import { Alert, Card, Col, Row, Typography } from "antd";
 import { useTranslation } from "react-i18next";
 
 import BarChart from "./components/bar-chart";

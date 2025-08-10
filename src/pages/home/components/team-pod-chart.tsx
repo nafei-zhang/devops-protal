@@ -9,7 +9,7 @@ import { teamPodData } from "../mockData";
 
 export default function TeamPodChart() {
 	const { t } = useTranslation();
-	
+
 	const DATA_KEY = {
 		landsharks: t("home.landsharks"),
 		luckinseamen: t("home.luckinseamen"),
@@ -19,15 +19,15 @@ export default function TeamPodChart() {
 		kongfulpandas: t("home.kongfulpandas"),
 		northenstars: t("home.northenstars"),
 	};
-	
-	const [data, setData] = useState<TeamPodDataType[]>(
+
+	const [data] = useState<TeamPodDataType[]>(
 		teamPodData.map((item) => {
 			const code = item.code as keyof typeof DATA_KEY;
 			return {
 				...item,
 				name: DATA_KEY[code],
 			};
-		})
+		}),
 	);
 
 	const option: EChartsOption = {
@@ -41,8 +41,8 @@ export default function TeamPodChart() {
 			type: "scroll",
 			textStyle: {
 				overflow: "truncate",
-				width: 100
-			}
+				width: 100,
+			},
 		},
 		series: [
 			{
@@ -54,39 +54,37 @@ export default function TeamPodChart() {
 				itemStyle: {
 					borderRadius: 6,
 					borderColor: "#fff",
-					borderWidth: 2
+					borderWidth: 2,
 				},
 				label: {
 					show: true,
 					formatter: "{b}: {c}%",
-					fontWeight: "normal"
+					fontWeight: "normal",
 				},
 				emphasis: {
 					label: {
 						show: true,
-						fontWeight: "normal"
+						fontWeight: "normal",
 					},
 					itemStyle: {
 						shadowBlur: 10,
 						shadowOffsetX: 0,
-						shadowColor: "rgba(0, 0, 0, 0.5)"
-					}
+						shadowColor: "rgba(0, 0, 0, 0.5)",
+					},
 				},
 				data,
 			},
 		],
 	};
 
-
-
 	return (
 		<Card
 			title={t("home.teamDistribution")}
 		>
 			<div style={{ height: "350px" }}>
-				<ReactECharts 
-					opts={{ height: "auto", width: "auto" }} 
-					option={option} 
+				<ReactECharts
+					opts={{ height: "auto", width: "auto" }}
+					option={option}
 					style={{ height: "100%", width: "100%" }}
 				/>
 			</div>

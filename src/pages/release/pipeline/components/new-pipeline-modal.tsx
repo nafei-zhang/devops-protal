@@ -21,8 +21,8 @@ interface NewPipelineModalProps {
 function getEnvironmentOptions(t: any) {
 	return [
 		{ label: t("pipeline.detail.steps.devDeployment"), value: "开发" },
-    { label: t("pipeline.detail.steps.sitEnvironment"), value: "测试" },
-    { label: t("pipeline.detail.steps.productionDeployment"), value: "生产" },
+		{ label: t("pipeline.detail.steps.sitEnvironment"), value: "测试" },
+		{ label: t("pipeline.detail.steps.productionDeployment"), value: "生产" },
 	];
 }
 
@@ -30,15 +30,15 @@ function getEnvironmentOptions(t: any) {
 function getApiNameOptions(t: any) {
 	return [
 		{ label: t("pipeline.list.apiNames.userManagement"), value: "用户管理API" },
-    { label: t("pipeline.list.apiNames.orderManagement"), value: "订单管理API" },
-    { label: t("pipeline.list.apiNames.paymentManagement"), value: "支付管理API" },
-    { label: t("pipeline.list.apiNames.productManagement"), value: "商品管理API" },
-    { label: t("pipeline.list.apiNames.inventoryManagement"), value: "库存管理API" },
-    { label: t("pipeline.list.apiNames.logisticsManagement"), value: "物流管理API" },
-    { label: t("pipeline.list.apiNames.memberManagement"), value: "会员管理API" },
-    { label: t("pipeline.list.apiNames.marketingManagement"), value: "营销管理API" },
-    { label: t("pipeline.list.apiNames.dataAnalysis"), value: "数据分析API" },
-    { label: t("pipeline.list.apiNames.messageNotification"), value: "消息通知API" },
+		{ label: t("pipeline.list.apiNames.orderManagement"), value: "订单管理API" },
+		{ label: t("pipeline.list.apiNames.paymentManagement"), value: "支付管理API" },
+		{ label: t("pipeline.list.apiNames.productManagement"), value: "商品管理API" },
+		{ label: t("pipeline.list.apiNames.inventoryManagement"), value: "库存管理API" },
+		{ label: t("pipeline.list.apiNames.logisticsManagement"), value: "物流管理API" },
+		{ label: t("pipeline.list.apiNames.memberManagement"), value: "会员管理API" },
+		{ label: t("pipeline.list.apiNames.marketingManagement"), value: "营销管理API" },
+		{ label: t("pipeline.list.apiNames.dataAnalysis"), value: "数据分析API" },
+		{ label: t("pipeline.list.apiNames.messageNotification"), value: "消息通知API" },
 	];
 }
 
@@ -72,7 +72,7 @@ export default function NewPipelineModal({
 		}
 		catch (error) {
 			console.error(t("pipeline.list.createApiError"), error);
-      window.$message?.error(t("pipeline.list.createApiError"));
+			window.$message?.error(t("pipeline.list.createApiError"));
 			return false;
 		}
 	};
@@ -98,7 +98,7 @@ export default function NewPipelineModal({
 			autoFocusFirstInput
 			modalProps={{
 				destroyOnHidden: true,
-				bodyStyle: { maxHeight: '600px', overflow: 'auto' }
+				bodyStyle: { maxHeight: "600px", overflow: "auto" },
 			}}
 			width={700}
 			onFinish={onFinish}

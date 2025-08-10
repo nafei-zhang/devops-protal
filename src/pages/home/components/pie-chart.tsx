@@ -32,8 +32,8 @@ export default function PieChart() {
 			trigger: "item",
 			formatter: "{a} <br/>{b} : {c} ({d}%)",
 			textStyle: {
-				fontWeight: "normal"
-			}
+				fontWeight: "normal",
+			},
 		},
 		legend: {
 			orient: "vertical",
@@ -47,7 +47,7 @@ export default function PieChart() {
 				center: ["50%", "60%"],
 				data,
 				label: {
-					fontWeight: "normal"
+					fontWeight: "normal",
 				},
 				// emphasis: {
 				// 	itemStyle: {

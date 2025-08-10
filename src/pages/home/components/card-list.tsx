@@ -1,12 +1,12 @@
 import type { ColProps } from "antd";
 import {
-	RocketOutlined,
 	CloudServerOutlined,
+	CrownOutlined,
+	RocketOutlined,
+	SafetyOutlined,
+	StarOutlined,
 	TeamOutlined,
 	ThunderboltOutlined,
-	SafetyOutlined,
-	CrownOutlined,
-	StarOutlined,
 } from "@ant-design/icons";
 import { Button, Card, Col, Row } from "antd";
 import CountUp from "react-countup";
@@ -53,18 +53,18 @@ export default function CardList() {
 								<div className="flex justify-between items-center">
 									<div className="flex flex-col">
 										<h3 className="text-xl">{cardItem.title}</h3>
-										<CountUp 
-									start={0}
-									end={cardItem.data} 
-									duration={2.5}
-									delay={0.3}
-									separator=","
-									decimals={0}
-									prefix=""
-									suffix=""
-									enableScrollSpy
-									className="text-2xl"
-								/>
+										<CountUp
+											start={0}
+											end={cardItem.data}
+											duration={2.5}
+											delay={0.3}
+											separator=","
+											decimals={0}
+											prefix=""
+											suffix=""
+											enableScrollSpy
+											className="text-2xl"
+										/>
 									</div>
 									<Button
 										className="text-3xl"
