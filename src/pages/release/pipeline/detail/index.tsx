@@ -2,10 +2,25 @@ import { fetchApiDetail } from "#src/api/release";
 import { BasicButton, BasicContent } from "#src/components";
 
 import { ArrowLeftOutlined, LoadingOutlined } from "@ant-design/icons";
-import { Button, Card, Descriptions, Divider, Steps, Tag, Typography, Spin, Modal, Input, Checkbox, DatePicker, Form } from "antd";
+import { Button, Card, Descriptions, Divider, Steps, Tag, Typography, Spin } from "antd";
 import { useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router";
+
+// 导入不同步骤的模态框组件
+import {
+	StartModal,
+	StaticScanningModal,
+	DevDeploymentModal,
+	SitEnvironmentModal,
+	ReleaseSignoffModal,
+	CteDeploymentModal,
+	PrepareFinalCRModal,
+	ProductionDeploymentModal,
+	CompletedModal,
+	DefaultModal
+} from "./modals";
+
 
 import type { ApiItemType } from "../index";
 import { useStyles } from "./style";
@@ -34,11 +49,22 @@ export default function PipelineDetail() {
 	const [stepStatus, setStepStatus] = useState<'process' | 'wait' | 'finish' | 'error'>('process'); // 当前步骤状态
 	const [isStepLoading, setIsStepLoading] = useState<boolean>(false); // 步骤加载状态
 	const [stepDetails, setStepDetails] = useState<string>(''); // 步骤详情
-	const [isModalVisible, setIsModalVisible] = useState<boolean>(false); // 模态框显示状态
 	const [modalTitle, setModalTitle] = useState<string>(''); // 模态框标题
 	const [showPipelineDetails, setShowPipelineDetails] = useState<boolean>(false); // 控制pipeline details的显示
 	const stepsContainerRef = useRef<HTMLDivElement>(null);
 	const classes = useStyles();
+	
+	// 各步骤模态框显示状态
+	const [startModalVisible, setStartModalVisible] = useState<boolean>(false);
+	const [staticScanningModalVisible, setStaticScanningModalVisible] = useState<boolean>(false);
+	const [devDeploymentModalVisible, setDevDeploymentModalVisible] = useState<boolean>(false);
+	const [sitEnvironmentModalVisible, setSitEnvironmentModalVisible] = useState<boolean>(false);
+	const [releaseSignoffModalVisible, setReleaseSignoffModalVisible] = useState<boolean>(false);
+	const [cteDeploymentModalVisible, setCteDeploymentModalVisible] = useState<boolean>(false);
+	const [prepareFinalCRModalVisible, setPrepareFinalCRModalVisible] = useState<boolean>(false);
+	const [productionDeploymentModalVisible, setProductionDeploymentModalVisible] = useState<boolean>(false);
+	const [completedModalVisible, setCompletedModalVisible] = useState<boolean>(false);
+	const [defaultModalVisible, setDefaultModalVisible] = useState<boolean>(false);
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -228,6 +254,20 @@ export default function PipelineDetail() {
 		}
 	};
 
+	// 关闭所有模态框
+	const closeAllModals = () => {
+		setStartModalVisible(false);
+		setStaticScanningModalVisible(false);
+		setDevDeploymentModalVisible(false);
+		setSitEnvironmentModalVisible(false);
+		setReleaseSignoffModalVisible(false);
+		setCteDeploymentModalVisible(false);
+		setPrepareFinalCRModalVisible(false);
+		setProductionDeploymentModalVisible(false);
+		setCompletedModalVisible(false);
+		setDefaultModalVisible(false);
+	};
+
 	// 处理步骤点击
 	const handleStepClick = (current: number) => {
 		setIsStepLoading(true);
@@ -243,9 +283,45 @@ export default function PipelineDetail() {
 			// 不显示pipeline details
 			setShowPipelineDetails(false);
 
-			// 显示模态框 - 无论是否是同一个步骤，都显示模态框
+			// 设置模态框标题
 			setModalTitle(pipelineSteps[current]?.title || '');
-			setIsModalVisible(true);
+			
+			// 关闭所有模态框
+			closeAllModals();
+			
+			// 根据当前步骤显示对应的模态框
+			switch (current) {
+				case 0: // 开始步骤
+					setStartModalVisible(true);
+					break;
+				case 1: // 静态扫描与镜像构建
+					setStaticScanningModalVisible(true);
+					break;
+				case 2: // 开发部署与Cyberflows DAST
+					setDevDeploymentModalVisible(true);
+					break;
+				case 3: // SIT环境流程
+					setSitEnvironmentModalVisible(true);
+					break;
+				case 4: // 发布签核与准备
+					setReleaseSignoffModalVisible(true);
+					break;
+				case 5: // CTE/预生产部署
+					setCteDeploymentModalVisible(true);
+					break;
+				case 6: // 准备最终CR
+					setPrepareFinalCRModalVisible(true);
+					break;
+				case 7: // 生产部署
+					setProductionDeploymentModalVisible(true);
+					break;
+				case 8: // 完成
+					setCompletedModalVisible(true);
+					break;
+				default: // 默认模态框
+					setDefaultModalVisible(true);
+					break;
+			}
 
 			setIsStepLoading(false);
 		}, 500);
@@ -345,7 +421,8 @@ export default function PipelineDetail() {
 		const updatedSteps = updateStepStatus(currentStep, 'pending');
 		setPipelineSteps(updatedSteps);
 		setStepStatus('wait');
-		setIsModalVisible(false);
+		// 关闭所有模态框
+		closeAllModals();
 		// 不显示pipeline details
 		setShowPipelineDetails(false);
 		// 重置当前步骤状态，确保下次点击同一步骤时能再次打开模态框
@@ -358,7 +435,8 @@ export default function PipelineDetail() {
 		const updatedSteps = updateStepStatus(currentStep, 'running');
 		setPipelineSteps(updatedSteps);
 		setStepStatus('process');
-		setIsModalVisible(false);
+		// 关闭所有模态框
+		closeAllModals();
 		// 显示pipeline details
 		setShowPipelineDetails(true);
 		// 重置当前步骤状态，确保下次点击同一步骤时能再次打开模态框
@@ -367,7 +445,8 @@ export default function PipelineDetail() {
 
 	// 关闭模态框
 	const handleModalCancel = () => {
-		setIsModalVisible(false);
+		// 关闭所有模态框
+		closeAllModals();
 		// 不显示pipeline details
 		setShowPipelineDetails(false);
 		// 重置当前步骤状态，确保下次点击同一步骤时能再次打开模态框
@@ -381,46 +460,86 @@ export default function PipelineDetail() {
 
 	return (
 		<BasicContent>
-			{/* 步骤操作模态框 */}
-			<Modal
+			{/* 各步骤对应的模态框 */}
+			<StartModal
+				open={startModalVisible}
 				title={modalTitle}
-				open={isModalVisible}
 				onCancel={handleModalCancel}
-				footer={null}
-				width={600}
-				centered
-				className={classes.stepModal}
-			>
-				<div className={classes.modalContent}>
-					<Form layout="vertical" className={classes.formContainer}>
-						<Form.Item label="Schedule Start Date Time" name="startDateTime">
-							<DatePicker showTime style={{ width: '100%' }} />
-						</Form.Item>
-						<Form.Item label="Duration" name="duration">
-							<Input />
-						</Form.Item>
-						<Form.Item label="Change Purpose" name="changePurpose">
-							<Input />
-						</Form.Item>
-						<Form.Item label="Short Description" name="shortDescription">
-							<Input />
-						</Form.Item>
-						<Form.Item name="isEmergency" valuePropName="checked" className={classes.checkbox}>
-							<Checkbox>Is Emergency</Checkbox>
-						</Form.Item>
-					</Form>
-					<div className={classes.modalFooter}>
-						<div className={classes.actionButtons}>
-							<Button onClick={handlePendingClick} className={classes.pendingButton}>
-								{t('pipeline.detail.status.pending')}
-							</Button>
-							<Button type="primary" onClick={handleContinueClick}>
-								{t('pipeline.detail.status.continue')}
-							</Button>
-						</div>
-					</div>
-				</div>
-			</Modal>
+				onPending={handlePendingClick}
+				onContinue={handleContinueClick}
+			/>
+			
+			<StaticScanningModal
+				open={staticScanningModalVisible}
+				title={modalTitle}
+				onCancel={handleModalCancel}
+				onPending={handlePendingClick}
+				onContinue={handleContinueClick}
+			/>
+			
+			<DevDeploymentModal
+				open={devDeploymentModalVisible}
+				title={modalTitle}
+				onCancel={handleModalCancel}
+				onPending={handlePendingClick}
+				onContinue={handleContinueClick}
+			/>
+			
+			<SitEnvironmentModal
+				open={sitEnvironmentModalVisible}
+				title={modalTitle}
+				onCancel={handleModalCancel}
+				onPending={handlePendingClick}
+				onContinue={handleContinueClick}
+			/>
+			
+			<ReleaseSignoffModal
+				open={releaseSignoffModalVisible}
+				title={modalTitle}
+				onCancel={handleModalCancel}
+				onPending={handlePendingClick}
+				onContinue={handleContinueClick}
+			/>
+			
+			<CteDeploymentModal
+				open={cteDeploymentModalVisible}
+				title={modalTitle}
+				onCancel={handleModalCancel}
+				onPending={handlePendingClick}
+				onContinue={handleContinueClick}
+			/>
+			
+			<PrepareFinalCRModal
+				open={prepareFinalCRModalVisible}
+				title={modalTitle}
+				onCancel={handleModalCancel}
+				onPending={handlePendingClick}
+				onContinue={handleContinueClick}
+			/>
+			
+			<ProductionDeploymentModal
+				open={productionDeploymentModalVisible}
+				title={modalTitle}
+				onCancel={handleModalCancel}
+				onPending={handlePendingClick}
+				onContinue={handleContinueClick}
+			/>
+			
+			<CompletedModal
+				open={completedModalVisible}
+				title={modalTitle}
+				onCancel={handleModalCancel}
+				onPending={handlePendingClick}
+				onContinue={handleContinueClick}
+			/>
+			
+			<DefaultModal
+				open={defaultModalVisible}
+				title={modalTitle}
+				onCancel={handleModalCancel}
+				onPending={handlePendingClick}
+				onContinue={handleContinueClick}
+			/>
 
 			{loading ? (
 				<div className="flex justify-center items-center h-64">
