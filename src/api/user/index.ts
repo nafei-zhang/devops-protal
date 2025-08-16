@@ -1,4 +1,5 @@
 import type { PasswordLoginFormType } from "#src/pages/login/components/password-login";
+import type { RegisterPasswordFormType } from "#src/pages/login/components/register-password";
 import type { AppRouteRecordRaw } from "#src/router/types";
 import type { AuthType, UserInfoType } from "./types";
 import { request } from "#src/utils";
@@ -9,6 +10,12 @@ export function fetchLogin(data: PasswordLoginFormType) {
 	return request
 		.post("login", { json: data })
 		.json<ApiResponse<AuthType>>();
+}
+
+export function fetchRegister(data: RegisterPasswordFormType) {
+	return request
+		.post("auth/register", { json: data })
+		.json<ApiResponse<{ success: boolean }>>();
 }
 
 export function fetchLogout() {

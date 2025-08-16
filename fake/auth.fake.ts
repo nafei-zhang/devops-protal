@@ -28,6 +28,16 @@ export default defineFakeRoute([
 		},
 	},
 	{
+		url: "/auth/register",
+		timeout: 1000,
+		method: "post",
+		response: () => {
+			return resultSuccess({
+				success: true,
+			});
+		},
+	},
+	{
 		url: "/logout",
 		timeout: 1000,
 		method: "post",

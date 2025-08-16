@@ -13,6 +13,8 @@
 	"login": "登录",
 	"loginInProgress": "登录中...",
 	"loginSuccess": "登录成功",
+	"registerSuccess": "注册成功",
+	"registerFailed": "注册失败",
 	"codeLogin": "验证码登录",
 	"forgotPassword": "忘记密码",
 	"retryAfterText": "{{ count }} 秒后重试",

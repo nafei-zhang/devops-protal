@@ -13,6 +13,8 @@
 	"login": "Login",
 	"loginInProgress": "Login in progress ...",
 	"loginSuccess": "Login Successful",
+	"registerSuccess": "Registration Successful",
+	"registerFailed": "Registration Failed",
 	"codeLogin": "Code Login",
 	"forgotPassword": "Forgot Password",
 	"retryAfterText": "{{ count }} seconds later you can try again",

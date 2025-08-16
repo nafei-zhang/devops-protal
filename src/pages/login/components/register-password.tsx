@@ -1,3 +1,4 @@
+import { fetchRegister } from "#src/api/user";
 import { BasicButton } from "#src/components";
 import { PASSWORD_RULES, USERNAME_RULES } from "#src/constants";
 
@@ -25,13 +26,31 @@ const FORM_INITIAL_VALUES = {
 export type RegisterPasswordFormType = typeof FORM_INITIAL_VALUES;
 
 export function RegisterPassword() {
-	const [loading] = useState(false);
+	const [loading, setLoading] = useState(false);
 	const [registerForm] = Form.useForm();
 	const { t } = useTranslation();
 	const { setFormMode } = useContext(FormModeContext);
 
-	const handleFinish = async () => {
-		window.$message?.success("注册成功");
+	const handleFinish = async (values: RegisterPasswordFormType) => {
+		try {
+			setLoading(true);
+			const response = await fetchRegister(values);
+			if (response.code === 0) {
+				window.$message?.success(t("authority.registerSuccess"));
+				// 注册成功后显示登录界面
+				setFormMode("login");
+			}
+			else {
+				window.$message?.error(response.message || t("authority.registerFailed"));
+			}
+		}
+		catch (error) {
+			console.error("注册失败:", error);
+			window.$message?.error(t("authority.registerFailed"));
+		}
+		finally {
+			setLoading(false);
+		}
 	};
 
 	return (
