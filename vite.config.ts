@@ -114,11 +114,38 @@ export default defineConfig({
 		port: 3333,
 		// https://vitejs.dev/config/server-options#server-proxy
 		proxy: {
-			// "/api": {
-			// 	target: "http://191.255.255.123:8888",
-			// 	changeOrigin: true,
-			// 	rewrite: path => isDev ? path.replace(/^\/api/, "") : path,
-			// },
+			"/api": {
+				target: "http://191.255.255.123:8888",
+				changeOrigin: true,
+				rewrite: path => isDev ? path.replace(/^\/api/, "") : path,
+				configure: (proxy) => {
+					proxy.on("error", (err, req, _res) => {
+						console.error("%c代理请求错误", "color: red; font-weight: bold", {
+							url: req.url,
+							method: req.method,
+							error: err.message,
+						});
+					});
+					proxy.on("proxyReq", (proxyReq, req, _res) => {
+						console.warn("%c发送请求到目标", "color: blue; font-weight: bold", {
+							method: req.method,
+							url: req.url,
+							headers: proxyReq.getHeaders(),
+							// 删除未定义的 Zs 属性
+						});
+					});
+					proxy.on("proxyRes", (proxyRes, req, _res) => {
+						const statusColor = proxyRes.statusCode && proxyRes.statusCode >= 400 ? "red" : "green";
+						console.warn(`%c收到目标响应: ${proxyRes.statusCode || 0}`, `color: ${statusColor}; font-weight: bold`, {
+							url: req.url,
+							method: req.method,
+							statusCode: proxyRes.statusCode,
+							statusMessage: proxyRes.statusMessage,
+							headers: proxyRes.headers,
+						});
+					});
+				},
+			},
 		},
 	},
 	define: {
