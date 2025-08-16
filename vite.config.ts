@@ -1,5 +1,3 @@
-/// <reference types="vitest/config" />
-
 import process from "node:process";
 import { cleanupSVG, isEmptyColor, parseColors, runSVGO, SVG } from "@iconify/tools";
 import react from "@vitejs/plugin-react";
@@ -118,7 +116,7 @@ export default defineConfig({
 				target: "http://191.255.255.123:8888",
 				changeOrigin: true,
 				rewrite: path => isDev ? path.replace(/^\/api/, "") : path,
-				configure: (proxy) => {
+				configure: (proxy, options) => {
 					proxy.on("error", (err, req, _res) => {
 						console.error("%c代理请求错误", "color: red; font-weight: bold", {
 							url: req.url,
@@ -131,7 +129,7 @@ export default defineConfig({
 							method: req.method,
 							url: req.url,
 							headers: proxyReq.getHeaders(),
-							// 删除未定义的 Zs 属性
+							target: options?.target ? options.target + (isDev && req.url ? req.url.replace(/^\/api/, "") : req.url || "") : "",
 						});
 					});
 					proxy.on("proxyRes", (proxyRes, req, _res) => {
@@ -143,6 +141,37 @@ export default defineConfig({
 							statusMessage: proxyRes.statusMessage,
 							headers: proxyRes.headers,
 						});
+
+						// 获取响应体内容（仅在开发环境下）
+						if (isDev) {
+							let responseBody = "";
+							proxyRes.on("data", (chunk) => {
+								responseBody += chunk.toString("utf8");
+							});
+
+							proxyRes.on("end", () => {
+								try {
+									// 尝试解析JSON
+									let parsedBody;
+									try {
+										parsedBody = JSON.parse(responseBody);
+									}
+									// eslint-disable-next-line unused-imports/no-unused-vars
+									catch (_e) {
+										// 如果不是JSON，则显示原始内容
+										parsedBody = responseBody;
+									}
+
+									console.warn("%c响应体内容", "color: purple; font-weight: bold", {
+										url: req.url,
+										data: parsedBody,
+									});
+								}
+								catch (err) {
+									console.error("%c解析响应体失败", "color: red", err);
+								}
+							});
+						}
 					});
 				},
 			},
