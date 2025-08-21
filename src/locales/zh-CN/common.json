@@ -97,5 +97,6 @@
 	"collapseAll": "折叠所有",
 	"checkAll": "选择所有",
 	"cancelAll": "取消所有",
-	"rebuild": "重新构建"
+	"rebuild": "重新构建",
+	"refreshSuccess": "刷新成功"
 }

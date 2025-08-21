@@ -75,6 +75,11 @@
 				"shortDescription": "Please input description"
 			}
 		},
+		"stepDetails": "Step Details",
+		"jobList": "Job List",
+		"jobLogs": "Job Logs",
+		"startTime": "Start Time",
+		"endTime": "End Time",
 		"steps": {
 			"start": "Start",
 			"staticScanning": "Static Scanning & Image Build",
@@ -92,7 +97,6 @@
 			"canceledDescription": "This step has been canceled. You can restart the pipeline or contact an administrator for assistance.",
 			"skippedDescription": "This step has been skipped. This may be due to configuration or conditional logic."
 		},
-		"stepDetails": "Details for the current step will be displayed here.",
 		"clickToViewDetails": "Click to view details"
 	}
 }

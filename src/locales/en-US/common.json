@@ -97,5 +97,6 @@
 	"collapseAll": "Collapse All",
 	"checkAll": "Check All",
 	"cancelAll": "Cancel All",
-	"rebuild": "Rebuild"
+	"rebuild": "Rebuild",
+	"refreshSuccess": "Refreshed successfully"
 }

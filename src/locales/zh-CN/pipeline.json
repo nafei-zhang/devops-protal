@@ -75,6 +75,11 @@
 				"shortDescription": "请输入描述"
 			}
 		},
+		"stepDetails": "步骤详情",
+		"jobList": "任务列表",
+		"jobLogs": "任务日志",
+		"startTime": "开始时间",
+		"endTime": "结束时间",
 		"steps": {
 			"start": "开始",
 			"staticScanning": "静态扫描与镜像构建",
@@ -92,7 +97,6 @@
 			"canceledDescription": "此步骤已被取消。您可以重新启动流水线或联系管理员获取帮助。",
 			"skippedDescription": "此步骤已被跳过。这可能是由于配置或条件判断导致的。"
 		},
-		"stepDetails": "当前步骤的详细信息将显示在这里。",
 		"clickToViewDetails": "点击查看详情"
 	}
 }

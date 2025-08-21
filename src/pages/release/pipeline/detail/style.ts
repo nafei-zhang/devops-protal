@@ -1,6 +1,144 @@
 import { createUseStyles } from "react-jss";
 
 export const useStyles = createUseStyles(({ token }) => ({
+	// 页面容器样式
+	"container": {
+		padding: "24px",
+	},
+	// 返回按钮样式
+	"backButton": {
+		marginBottom: "16px",
+	},
+	// 任务列表样式
+	"jobListContainer": {
+		marginTop: "24px",
+	},
+	"jobList": {
+		display: "flex",
+		flexDirection: "column",
+		gap: "12px",
+		marginTop: "16px",
+	},
+	"jobItem": {
+		"padding": "12px",
+		"border": `1px solid ${token.colorBorderSecondary}`,
+		"borderRadius": token.borderRadius,
+		"cursor": "pointer",
+		"transition": "all 0.3s",
+		"&:hover": {
+			backgroundColor: token.colorBgTextHover,
+			borderColor: token.colorBorder,
+		},
+	},
+	"selectedJob": {
+		"borderColor": token.colorPrimary,
+		"backgroundColor": token.colorPrimaryBg,
+		"&:hover": {
+			backgroundColor: token.colorPrimaryBg,
+			borderColor: token.colorPrimary,
+		},
+	},
+	"jobInfo": {
+		display: "flex",
+		justifyContent: "space-between",
+		alignItems: "center",
+		marginBottom: "8px",
+	},
+	"jobName": {
+		fontWeight: "500",
+	},
+	"jobTime": {
+		fontSize: "12px",
+		color: token.colorTextSecondary,
+	},
+	// 日志高亮样式
+	"successLog": {
+		color: "#52c41a",
+		fontWeight: "bold",
+		display: "block",
+	},
+	"errorLog": {
+		color: "#f5222d",
+		fontWeight: "bold",
+		display: "block",
+	},
+	"headerLog": {
+		color: "#4ec9b0",
+		fontWeight: "bold",
+		display: "block",
+	},
+	"pipelineLog": {
+		color: "#c586c0",
+		display: "block",
+	},
+	"commandLog": {
+		color: "#dcdcaa",
+		display: "block",
+	},
+	"infoLog": {
+		color: "#569cd6",
+		display: "block",
+	},
+	"debugLog": {
+		color: "#b5cea8",
+		display: "block",
+	},
+	"timestampLog": {
+		color: "#858585",
+	},
+	// 日志样式
+	"logsContainer": {
+		marginTop: "24px",
+		maxHeight: "500px",
+		overflow: "hidden",
+		borderRadius: token.borderRadius,
+		boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+	},
+	"logs": {
+		"padding": "16px",
+		"backgroundColor": "#1e1e1e",
+		"border": "1px solid #e6e6e6",
+		"borderRadius": token.borderRadius,
+		"fontFamily": "'Consolas', 'Monaco', 'Courier New', monospace",
+		"fontSize": "13px",
+		"lineHeight": "1.5",
+		"overflowX": "auto",
+		"whiteSpace": "pre-line",
+		"wordBreak": "break-all",
+		"wordWrap": "break-word",
+		"color": "#d4d4d4",
+		"maxHeight": "500px",
+		"overflowY": "auto",
+		"& span.info": {
+			color: "#569cd6",
+		},
+		"& span.debug": {
+			color: "#b5cea8",
+		},
+		"& span.error": {
+			color: "#f44747",
+		},
+		"& span.warning": {
+			color: "#ce9178",
+		},
+		"& span.success": {
+			color: "#6a9955",
+		},
+		"& span.timestamp": {
+			color: "#858585",
+		},
+		"& span.pipeline": {
+			color: "#c586c0",
+			fontWeight: "bold",
+		},
+		"& span.command": {
+			color: "#dcdcaa",
+		},
+		"& span.header": {
+			color: "#4ec9b0",
+			fontWeight: "bold",
+		},
+	},
 	"actionButtons": {
 		display: "flex",
 		justifyContent: "flex-end",

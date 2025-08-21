@@ -2,7 +2,7 @@ import type { ApiItemType } from "../index";
 import { fetchApiDetail } from "#src/api/release";
 
 import { BasicContent } from "#src/components";
-import { ArrowLeftOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, ReloadOutlined } from "@ant-design/icons";
 import { Button, Card, Descriptions, Divider, Spin, Steps, Tag, Typography } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -38,6 +38,20 @@ interface StepProps {
 	"icon": React.ReactNode
 	// 添加data属性用于存储自定义状态
 	"data-custom-status"?: StepStatusType
+	// 添加jobList属性
+	"jobList"?: JobItem[]
+	// 添加modelType属性用于确定显示哪种模态框
+	"modelType"?: "start" | "staticScanning" | "devDeployment" | "sitEnvironment" | "releaseSignoff" | "cteDeployment" | "prepareFinalCR" | "productionDeployment" | "completed" | "default"
+}
+
+// Job项类型
+interface JobItem {
+	id: string
+	name: string
+	status: "pending" | "running" | "completed" | "failed"
+	startTime: string
+	endTime?: string
+	logs?: string[]
 }
 
 // 自定义图标组件
@@ -102,6 +116,11 @@ export default function PipelineDetail() {
 	const [stepDetails, setStepDetails] = useState<string>(""); // 步骤详情
 	const [modalTitle, setModalTitle] = useState<string>(""); // 模态框标题
 	const [showPipelineDetails, setShowPipelineDetails] = useState<boolean>(false); // 控制pipeline details的显示
+	const [currentJobs, setCurrentJobs] = useState<JobItem[]>([]); // 当前步骤的任务列表
+	// 以下状态变量在当前实现中不再使用，因为每个任务都有独立的日志显示
+	// const [selectedJob, setSelectedJob] = useState<string>(""); // 选中的任务ID
+	// const [jobLogs, setJobLogs] = useState<string>(""); // 任务日志
+	// const [showJobLogs, setShowJobLogs] = useState<boolean>(false); // 控制任务日志的显示
 	const stepsContainerRef = useRef<HTMLDivElement>(null);
 	const classes = useStyles();
 
@@ -276,6 +295,22 @@ export default function PipelineDetail() {
 		setDefaultModalVisible(false);
 	};
 
+	// 模态框策略对象 - 根据modelType显示不同的模态框
+	const modalStrategy = {
+		start: () => setStartModalVisible(true),
+		staticScanning: () => setStaticScanningModalVisible(true),
+		devDeployment: () => setDevDeploymentModalVisible(true),
+		sitEnvironment: () => setSitEnvironmentModalVisible(true),
+		releaseSignoff: () => setReleaseSignoffModalVisible(true),
+		cteDeployment: () => setCteDeploymentModalVisible(true),
+		prepareFinalCR: () => setPrepareFinalCRModalVisible(true),
+		productionDeployment: () => setProductionDeploymentModalVisible(true),
+		completed: () => setCompletedModalVisible(true),
+		default: () => setDefaultModalVisible(true),
+		// 如果没有指定modelType，则显示pipeline details
+		showDetails: () => setShowPipelineDetails(true),
+	};
+
 	// 处理步骤点击
 	const handleStepClick = (current: number) => {
 		setIsStepLoading(true);
@@ -294,49 +329,336 @@ export default function PipelineDetail() {
 			// 关闭所有模态框
 			closeAllModals();
 
-			// 根据当前步骤决定是显示模态框还是直接显示pipeline details
-			switch (current) {
-				case 0: // 开始步骤 - 直接显示pipeline details
-					setShowPipelineDetails(true);
-					break;
-				case 1: // 静态扫描与镜像构建 - 直接显示pipeline details
-					setShowPipelineDetails(true);
-					break;
-				case 2: // 开发部署与Cyberflows DAST - 直接显示pipeline details
-					setShowPipelineDetails(true);
-					break;
-				case 3: // SIT环境流程 - 显示模态框
-					setShowPipelineDetails(false);
-					setSitEnvironmentModalVisible(true);
-					break;
-				case 4: // 发布签核与准备 - 显示模态框
-					setShowPipelineDetails(false);
-					setReleaseSignoffModalVisible(true);
-					break;
-				case 5: // CTE/预生产部署 - 显示模态框
-					setShowPipelineDetails(false);
-					setCteDeploymentModalVisible(true);
-					break;
-				case 6: // 准备最终CR - 显示模态框
-					setShowPipelineDetails(false);
-					setPrepareFinalCRModalVisible(true);
-					break;
-				case 7: // 生产部署 - 显示模态框
-					setShowPipelineDetails(false);
-					setProductionDeploymentModalVisible(true);
-					break;
-				case 8: // 完成 - 显示模态框
-					setShowPipelineDetails(false);
-					setCompletedModalVisible(true);
-					break;
-				default: // 默认模态框
-					setShowPipelineDetails(false);
-					setDefaultModalVisible(true);
-					break;
+			// 加载当前步骤的任务列表
+			if (pipelineSteps[current]?.jobList) {
+				setCurrentJobs(pipelineSteps[current].jobList);
+
+				// 如果有正在运行的任务，自动选中它
+				// const runningJob = pipelineSteps[current].jobList.find(job => job.status === "running"); // 已注释，因为我们不再使用这个变量
+				if (pipelineSteps[current].jobList.find(job => job.status === "running")) {
+					// setSelectedJob(pipelineSteps[current].jobList.find(job => job.status === "running").id); // 已注释，因为我们不再使用这个状态
+					// setJobLogs(pipelineSteps[current].jobList.find(job => job.status === "running").logs || []); // 已注释，因为我们不再使用这个状态
+					// setShowJobLogs(true); // 已注释，因为我们不再使用这个状态
+				}
+				else if (pipelineSteps[current].jobList.length > 0) {
+					// 否则选中第一个任务
+					// const firstJob = pipelineSteps[current].jobList[0]; // 已注释，因为我们不再使用这个变量
+					// setSelectedJob(pipelineSteps[current].jobList[0].id); // 已注释，因为我们不再使用这个状态
+					// setJobLogs(pipelineSteps[current].jobList[0].logs || []); // 已注释，因为我们不再使用这个状态
+					// setShowJobLogs(pipelineSteps[current].jobList[0].status === "completed" || pipelineSteps[current].jobList[0].status === "running"); // 已注释，因为我们不再使用这个状态
+				}
+				else {
+					// 没有任务时重置状态
+					// setSelectedJob(""); // 已注释，因为我们不再使用这个状态
+					// setJobLogs([]); // 已注释，因为我们不再使用这个状态
+					// setShowJobLogs(false); // 已注释，因为我们不再使用这个状态
+				}
+			}
+			else {
+				// 没有任务列表时重置状态
+				setCurrentJobs([]);
+				// setSelectedJob(""); // 已注释，因为我们不再使用这个状态
+				// setJobLogs([]); // 已注释，因为我们不再使用这个状态
+				// setShowJobLogs(false); // 已注释，因为我们不再使用这个状态
+			}
+
+			// 使用策略模式显示模态框或pipeline details
+			setShowPipelineDetails(false); // 默认不显示pipeline details
+
+			// 获取当前步骤的modelType
+			const modelType = pipelineSteps[current]?.modelType;
+
+			if (modelType && modalStrategy[modelType]) {
+				// 如果有modelType并且策略对象中有对应的处理函数，则调用该函数
+				modalStrategy[modelType]();
+			}
+			else if (current <= 2) {
+				// 前三个步骤默认显示pipeline details
+				modalStrategy.showDetails();
+			}
+			else {
+				// 其他情况显示默认模态框
+				modalStrategy.default();
 			}
 
 			setIsStepLoading(false);
 		}, 500);
+	};
+
+	// 生成模拟日志
+	const generateMockLogs = (jobName: string, status: string): string[] => {
+		// 创建格式化的时间戳函数
+		const timestamp = () => {
+			const now = new Date();
+			const hours = now.getHours().toString().padStart(2, "0");
+			const minutes = now.getMinutes().toString().padStart(2, "0");
+			const seconds = now.getSeconds().toString().padStart(2, "0");
+			const milliseconds = now.getMilliseconds().toString().padStart(3, "0");
+			return `${hours}:${minutes}:${seconds}.${milliseconds}`;
+		};
+
+		// 创建随机延迟函数
+		const randomDelay = () => {
+			const baseDate = new Date();
+			baseDate.setSeconds(baseDate.getSeconds() - Math.floor(Math.random() * 60));
+			return baseDate;
+		};
+
+		// 生成随机构造ID
+		const buildId = Math.floor(10000 + Math.random() * 90000);
+		const commitId = Array.from({ length: 8 }, () => "0123456789abcdef"[Math.floor(Math.random() * 16)]).join("");
+
+		// 开始构建Jenkins风格的日志 - 使用数组存储每行日志
+		const logs: string[] = [];
+		logs.push("+------------------------------------------+");
+		logs.push("|               Jenkins Build               |");
+		logs.push("+------------------------------------------+");
+		logs.push(`| Job Name: ${jobName.padEnd(32)} |`);
+		logs.push(`| Build ID: #${buildId.toString().padEnd(31)} |`);
+		logs.push(`| Status: ${status.toUpperCase().padEnd(33)} |`);
+		logs.push("+------------------------------------------+");
+
+		// 添加构建初始化信息 - 添加到日志数组
+		logs.push(`[${timestamp()}] Started by user admin`);
+		logs.push(`[${timestamp()}] Running in Durability level: MAX_SURVIVABILITY`);
+		logs.push(`[${timestamp()}] [Pipeline] Start of Pipeline`);
+		logs.push(`[${timestamp()}] [Pipeline] node`);
+		logs.push(`[${timestamp()}] Running on Jenkins in /var/jenkins_home/workspace/${jobName.replace(/ /g, "_")}`);
+		logs.push(`[${timestamp()}] [Pipeline] { (Checkout)`);
+		logs.push(`[${timestamp()}] [Pipeline] checkout`);
+		logs.push(`[${timestamp()}] using credential github-token`);
+		logs.push(`[${timestamp()}] Cloning repository https://github.com/company/project.git`);
+		logs.push(`[${timestamp()}] > git init /var/jenkins_home/workspace/${jobName.replace(/ /g, "_")}`);
+		logs.push(`[${timestamp()}] > git checkout -b main ${commitId}`);
+		logs.push(`[${timestamp()}] [Pipeline] }`);
+
+		// 根据不同的任务添加特定日志 - 添加到日志数组
+		if (jobName.includes("构建") || jobName.includes("Build")) {
+			logs.push(`[${timestamp()}] [Pipeline] { (Build)`);
+			logs.push(`[${timestamp()}] [Pipeline] sh`);
+			logs.push(`[${timestamp()}] + npm ci`);
+			logs.push(`[${timestamp()}] added 1232 packages in 25s`);
+			logs.push(`[${timestamp()}] [Pipeline] sh`);
+			logs.push(`[${timestamp()}] + npm run lint`);
+			logs.push(`[${timestamp()}] > project@1.0.0 lint`);
+			logs.push(`[${timestamp()}] > eslint . --ext .js,.jsx,.ts,.tsx`);
+			logs.push(`[${timestamp()}] [Pipeline] sh`);
+			logs.push(`[${timestamp()}] + npm run build`);
+			logs.push(`[${timestamp()}] > project@1.0.0 build`);
+			logs.push(`[${timestamp()}] > react-scripts build`);
+			logs.push(`[${timestamp()}] Creating an optimized production build...`);
+			logs.push(`[${timestamp()}] Compiled successfully.`);
+			logs.push(`[${timestamp()}] File sizes after gzip:`);
+			logs.push(`[${timestamp()}]   126.45 KB  build/static/js/main.${commitId.substring(0, 6)}.js`);
+			logs.push(`[${timestamp()}]   24.33 KB   build/static/css/main.${commitId.substring(0, 6)}.css`);
+			logs.push(`[${timestamp()}]   1.23 KB    build/static/js/runtime-main.${commitId.substring(0, 6)}.js`);
+			logs.push(`[${timestamp()}] The project was built assuming it is hosted at /.`);
+			logs.push(`[${timestamp()}] [Pipeline] }`);
+		}
+		else if (jobName.includes("测试") || jobName.includes("Test")) {
+			logs.push(`[${timestamp()}] [Pipeline] { (Test)`);
+			logs.push(`[${timestamp()}] [Pipeline] sh`);
+			logs.push(`[${timestamp()}] + npm test -- --coverage`);
+			logs.push(`[${timestamp()}] > project@1.0.0 test`);
+			logs.push(`[${timestamp()}] > react-scripts test --coverage`);
+			logs.push(`[${timestamp()}] PASS src/components/__tests__/Button.test.tsx`);
+			logs.push(`[${timestamp()}] PASS src/utils/__tests__/format.test.ts`);
+			logs.push(`[${timestamp()}] PASS src/hooks/__tests__/useAuth.test.ts`);
+			logs.push(`[${timestamp()}] ------------------|---------|----------|---------|---------|-------------------`);
+			logs.push(`[${timestamp()}] File              | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s `);
+			logs.push(`[${timestamp()}] ------------------|---------|----------|---------|---------|-------------------`);
+			logs.push(`[${timestamp()}] All files          |   85.71 |    76.92 |   84.21 |   85.45 |                   `);
+			logs.push(`[${timestamp()}]  src/components    |   92.31 |    83.33 |   88.89 |   92.00 |                   `);
+			logs.push(`[${timestamp()}]  src/utils         |   79.17 |    70.00 |   77.78 |   78.95 | 25,43-48          `);
+			logs.push(`[${timestamp()}]  src/hooks         |   85.71 |    77.78 |   85.71 |   85.29 | 32,67-68          `);
+			logs.push(`[${timestamp()}] ------------------|---------|----------|---------|---------|-------------------`);
+			logs.push(`[${timestamp()}] Test Suites: 3 passed, 3 total`);
+			logs.push(`[${timestamp()}] Tests:       18 passed, 18 total`);
+			logs.push(`[${timestamp()}] Snapshots:   0 total`);
+			logs.push(`[${timestamp()}] Time:        5.28s`);
+			logs.push(`[${timestamp()}] [Pipeline] }`);
+		}
+		else if (jobName.includes("部署") || jobName.includes("Deploy")) {
+			logs.push(`[${timestamp()}] [Pipeline] { (Deploy)`);
+			logs.push(`[${timestamp()}] [Pipeline] sh`);
+			logs.push(`[${timestamp()}] + docker build -t project:${buildId} .`);
+			logs.push(`[${timestamp()}] Step 1/12 : FROM node:16-alpine AS builder`);
+			logs.push(`[${timestamp()}]  ---> 5c43e435cc11`);
+			logs.push(`[${timestamp()}] Step 2/12 : WORKDIR /app`);
+			logs.push(`[${timestamp()}]  ---> Using cache`);
+			logs.push(`[${timestamp()}]  ---> 9a56b8da441e`);
+			logs.push(`[${timestamp()}] Step 3/12 : COPY package*.json ./`);
+			logs.push(`[${timestamp()}]  ---> Using cache`);
+			logs.push(`[${timestamp()}]  ---> 7c3ed8cb8972`);
+			logs.push(`[${timestamp()}] Step 4/12 : RUN npm ci`);
+			logs.push(`[${timestamp()}]  ---> Using cache`);
+			logs.push(`[${timestamp()}]  ---> 3a9e8a5e1234`);
+			logs.push(`[${timestamp()}] Step 5/12 : COPY . .`);
+			logs.push(`[${timestamp()}]  ---> 8c7d9a5e1234`);
+			logs.push(`[${timestamp()}] Step 6/12 : RUN npm run build`);
+			logs.push(`[${timestamp()}]  ---> Running in 7c3ed8cb8972`);
+			logs.push(`[${timestamp()}] > project@1.0.0 build`);
+			logs.push(`[${timestamp()}] > react-scripts build`);
+			logs.push(`[${timestamp()}] Creating an optimized production build...`);
+			logs.push(`[${timestamp()}] Compiled successfully.`);
+			logs.push(`[${timestamp()}]  ---> 9a56b8da441e`);
+			logs.push(`[${timestamp()}] Step 7/12 : FROM nginx:alpine`);
+			logs.push(`[${timestamp()}]  ---> 5c43e435cc11`);
+			logs.push(`[${timestamp()}] Step 8/12 : COPY --from=builder /app/build /usr/share/nginx/html`);
+			logs.push(`[${timestamp()}]  ---> Using cache`);
+			logs.push(`[${timestamp()}]  ---> 7c3ed8cb8972`);
+			logs.push(`[${timestamp()}] Step 9/12 : EXPOSE 80`);
+			logs.push(`[${timestamp()}]  ---> Using cache`);
+			logs.push(`[${timestamp()}]  ---> 3a9e8a5e1234`);
+			logs.push(`[${timestamp()}] Step 10/12 : CMD ["nginx", "-g", "daemon off;"]`);
+			logs.push(`[${timestamp()}]  ---> Using cache`);
+			logs.push(`[${timestamp()}]  ---> 8c7d9a5e1234`);
+			logs.push(`[${timestamp()}] Successfully built 8c7d9a5e1234`);
+			logs.push(`[${timestamp()}] Successfully tagged project:${buildId}`);
+			logs.push(`[${timestamp()}] [Pipeline] sh`);
+			logs.push(`[${timestamp()}] + kubectl set image deployment/project project=project:${buildId}`);
+			logs.push(`[${timestamp()}] deployment.apps/project image updated`);
+			logs.push(`[${timestamp()}] [Pipeline] sh`);
+			logs.push(`[${timestamp()}] + kubectl rollout status deployment/project`);
+			logs.push(`[${timestamp()}] Waiting for deployment "project" rollout to finish: 1 old replicas are pending termination...`);
+			logs.push(`[${timestamp()}] Waiting for deployment "project" rollout to finish: 1 old replicas are pending termination...`);
+			logs.push(`[${timestamp()}] deployment "project" successfully rolled out`);
+			logs.push(`[${timestamp()}] [Pipeline] }`);
+		}
+		else {
+			logs.push(`[${timestamp()}] [Pipeline] { (Execute)`);
+			logs.push(`[${timestamp()}] [Pipeline] sh`);
+			logs.push(`[${timestamp()}] + echo "Executing ${jobName}"`);
+			logs.push(`[${timestamp()}] Executing ${jobName}`);
+			logs.push(`[${timestamp()}] [Pipeline] sh`);
+			logs.push(`[${timestamp()}] + npm run script`);
+			logs.push(`[${timestamp()}] > project@1.0.0 script`);
+			logs.push(`[${timestamp()}] > node scripts/execute.js`);
+			logs.push(`[${timestamp()}] Script execution started...`);
+			logs.push(`[${timestamp()}] Processing data...`);
+			logs.push(`[${timestamp()}] Script completed successfully`);
+			logs.push(`[${timestamp()}] [Pipeline] }`);
+		}
+
+		// 添加结果日志
+		if (status === "completed") {
+			logs.push(`[${timestamp()}] [Pipeline] { (Finalize)`);
+			logs.push(`[${timestamp()}] [Pipeline] sh`);
+			logs.push(`[${timestamp()}] + echo "Build successful"`);
+			logs.push(`[${timestamp()}] Build successful`);
+			logs.push(`[${timestamp()}] [Pipeline] }`);
+			logs.push(`[${timestamp()}] [Pipeline] // node`);
+			logs.push(`[${timestamp()}] [Pipeline] End of Pipeline`);
+			logs.push(`[${timestamp()}] Finished: SUCCESS`);
+			logs.push("+------------------------------------------+");
+			logs.push("|             BUILD SUCCESS              |");
+			logs.push("+------------------------------------------+");
+			logs.push(`| Total time: ${Math.floor(30 + Math.random() * 120)}s                       |`);
+			logs.push("+------------------------------------------+");
+		}
+		else if (status === "failed") {
+			logs.push(`[${timestamp()}] [Pipeline] { (Error)`);
+			logs.push(`[${timestamp()}] [Pipeline] sh`);
+			logs.push(`[${timestamp()}] + exit 1`);
+			logs.push(`[${timestamp()}] [Pipeline] }`);
+			logs.push(`[${timestamp()}] [Pipeline] // node`);
+			logs.push(`[${timestamp()}] [Pipeline] End of Pipeline`);
+			logs.push(`[${timestamp()}] ERROR: script returned exit code 1`);
+			logs.push(`[${timestamp()}] Finished: FAILURE`);
+			logs.push("+------------------------------------------+");
+			logs.push("|             BUILD FAILED               |");
+			logs.push("+------------------------------------------+");
+			logs.push("| Error: Process exited with code 1      |");
+			logs.push(`| Total time: ${Math.floor(15 + Math.random() * 45)}s                       |`);
+			logs.push("+------------------------------------------+");
+		}
+		else if (status === "running") {
+			logs.push(`[${timestamp()}] [Pipeline] { (In Progress)`);
+			logs.push(`[${timestamp()}] [Pipeline] sh`);
+			logs.push(`[${timestamp()}] + echo "Build in progress..."`);
+			logs.push(`[${timestamp()}] Build in progress...`);
+			logs.push(`[${timestamp()}] [Pipeline] sh`);
+			logs.push(`[${timestamp()}] + sleep 10`);
+		}
+
+		// 添加更多随机日志行以达到约500行
+		const logTypes = [
+			"[INFO] Processing file {0}.js",
+			"[DEBUG] Variable {0} = {1}",
+			"[TRACE] Function {0} called with params ({1})",
+			"[INFO] Loaded module {0} in {1}ms",
+			"[DEBUG] Cache hit ratio: {0}%",
+			"[INFO] API request to {0} completed in {1}ms",
+			"[DEBUG] Memory usage: {0}MB",
+			"[TRACE] Event {0} triggered",
+			"[INFO] Thread {0} started",
+			"[DEBUG] Connection pool: {0} active, {1} idle",
+		];
+
+		const fileNames = ["main", "utils", "helpers", "components", "services", "models", "controllers", "views", "middleware", "config"];
+		const functionNames = ["initialize", "process", "transform", "validate", "calculate", "render", "update", "create", "delete", "fetch"];
+		const moduleNames = ["react", "redux", "axios", "lodash", "moment", "express", "webpack", "babel", "typescript", "jest"];
+		const apiEndpoints = ["/api/users", "/api/products", "/api/orders", "/api/auth", "/api/settings"];
+		const eventNames = ["click", "load", "change", "submit", "resize", "scroll", "connect", "disconnect", "error", "success"];
+
+		const getRandomItem = (array: string[]) => array[Math.floor(Math.random() * array.length)];
+		const getRandomNumber = (min: number, max: number) => Math.floor(min + Math.random() * (max - min));
+
+		for (let i = 0; i < 350; i++) {
+			const logTemplate = getRandomItem(logTypes);
+			let logMessage = logTemplate;
+
+			// 替换占位符
+			if (logTemplate.includes("{0}")) {
+				if (logTemplate.includes("file")) {
+					logMessage = logMessage.replace("{0}", getRandomItem(fileNames));
+				}
+				else if (logTemplate.includes("Variable")) {
+					logMessage = logMessage.replace("{0}", `var_${getRandomNumber(1, 100)}`);
+					logMessage = logMessage.replace("{1}", `${getRandomNumber(0, 1000)}`);
+				}
+				else if (logTemplate.includes("Function")) {
+					logMessage = logMessage.replace("{0}", getRandomItem(functionNames));
+					logMessage = logMessage.replace("{1}", `id=${getRandomNumber(1, 1000)}, type='${getRandomItem(["user", "product", "order", "payment"])}'`);
+				}
+				else if (logTemplate.includes("module")) {
+					logMessage = logMessage.replace("{0}", getRandomItem(moduleNames));
+					logMessage = logMessage.replace("{1}", `${getRandomNumber(10, 500)}`);
+				}
+				else if (logTemplate.includes("Cache")) {
+					logMessage = logMessage.replace("{0}", `${getRandomNumber(50, 99)}`);
+				}
+				else if (logTemplate.includes("API")) {
+					logMessage = logMessage.replace("{0}", getRandomItem(apiEndpoints));
+					logMessage = logMessage.replace("{1}", `${getRandomNumber(50, 2000)}`);
+				}
+				else if (logTemplate.includes("Memory")) {
+					logMessage = logMessage.replace("{0}", `${getRandomNumber(100, 1024)}`);
+				}
+				else if (logTemplate.includes("Event")) {
+					logMessage = logMessage.replace("{0}", getRandomItem(eventNames));
+				}
+				else if (logTemplate.includes("Thread")) {
+					logMessage = logMessage.replace("{0}", `worker-${getRandomNumber(1, 10)}`);
+				}
+				else if (logTemplate.includes("Connection")) {
+					logMessage = logMessage.replace("{0}", `${getRandomNumber(1, 20)}`);
+					logMessage = logMessage.replace("{1}", `${getRandomNumber(5, 50)}`);
+				}
+			}
+
+			// 添加带有随机延迟的时间戳
+			const delayedDate = randomDelay();
+			const hours = delayedDate.getHours().toString().padStart(2, "0");
+			const minutes = delayedDate.getMinutes().toString().padStart(2, "0");
+			const seconds = delayedDate.getSeconds().toString().padStart(2, "0");
+			const milliseconds = delayedDate.getMilliseconds().toString().padStart(3, "0");
+			const logTimestamp = `${hours}:${minutes}:${seconds}.${milliseconds}`;
+
+			logs.push(`[${logTimestamp}] ${logMessage}`);
+		}
+
+		return logs;
 	};
 
 	// 模拟步骤状态变化
@@ -353,6 +675,25 @@ export default function PipelineDetail() {
 				"status": mapCustomStatusToAntd("completed"),
 				"icon": <CustomStepIcon status="completed" />,
 				"data-custom-status": "completed",
+				"modelType": "start", // 添加modelType属性
+				"jobList": [
+					{
+						id: "job-start-1",
+						name: "初始化项目",
+						status: "completed",
+						startTime: "2023-06-01 09:00:00",
+						endTime: "2023-06-01 09:05:00",
+						logs: generateMockLogs("初始化项目", "completed"),
+					},
+					{
+						id: "job-start-2",
+						name: "配置环境",
+						status: "completed",
+						startTime: "2023-06-01 09:05:00",
+						endTime: "2023-06-01 09:10:00",
+						logs: generateMockLogs("配置环境", "completed"),
+					},
+				],
 			},
 			{
 				"title": t("pipeline.detail.steps.staticScanning"),
@@ -361,6 +702,24 @@ export default function PipelineDetail() {
 				"status": mapCustomStatusToAntd("running"),
 				"icon": <CustomStepIcon status="running" />,
 				"data-custom-status": "running",
+				"modelType": "staticScanning", // 添加modelType属性
+				"jobList": [
+					{
+						id: "job-scan-1",
+						name: "代码扫描",
+						status: "completed",
+						startTime: "2023-06-01 10:00:00",
+						endTime: "2023-06-01 10:15:00",
+						logs: generateMockLogs("代码扫描", "completed"),
+					},
+					{
+						id: "job-scan-2",
+						name: "安全检查",
+						status: "running",
+						startTime: "2023-06-01 10:15:00",
+						logs: generateMockLogs("安全检查", "running"),
+					},
+				],
 			},
 			{
 				"title": t("pipeline.detail.steps.devDeployment"),
@@ -369,6 +728,23 @@ export default function PipelineDetail() {
 				"status": mapCustomStatusToAntd("pending"),
 				"icon": <CustomStepIcon status="pending" />,
 				"data-custom-status": "pending",
+				"modelType": "devDeployment", // 添加modelType属性
+				"jobList": [
+					{
+						id: "job-dev-1",
+						name: "构建开发包",
+						status: "pending",
+						startTime: "",
+						logs: [],
+					},
+					{
+						id: "job-dev-2",
+						name: "部署到开发环境",
+						status: "pending",
+						startTime: "",
+						logs: [],
+					},
+				],
 			},
 			{
 				"title": t("pipeline.detail.steps.sitEnvironment"),
@@ -377,6 +753,23 @@ export default function PipelineDetail() {
 				"status": mapCustomStatusToAntd("pending"),
 				"icon": <CustomStepIcon status="pending" />,
 				"data-custom-status": "pending",
+				"modelType": "sitEnvironment", // 添加modelType属性
+				"jobList": [
+					{
+						id: "job-sit-1",
+						name: "构建测试包",
+						status: "pending",
+						startTime: "",
+						logs: [],
+					},
+					{
+						id: "job-sit-2",
+						name: "部署到测试环境",
+						status: "pending",
+						startTime: "",
+						logs: [],
+					},
+				],
 			},
 			{
 				"title": t("pipeline.detail.steps.releaseSignoff"),
@@ -385,6 +778,23 @@ export default function PipelineDetail() {
 				"status": mapCustomStatusToAntd("pending"),
 				"icon": <CustomStepIcon status="pending" />,
 				"data-custom-status": "pending",
+				"modelType": "releaseSignoff", // 添加modelType属性
+				"jobList": [
+					{
+						id: "job-signoff-1",
+						name: "准备发布文档",
+						status: "pending",
+						startTime: "",
+						logs: [],
+					},
+					{
+						id: "job-signoff-2",
+						name: "获取发布批准",
+						status: "pending",
+						startTime: "",
+						logs: [],
+					},
+				],
 			},
 			{
 				"title": t("pipeline.detail.steps.cteDeployment"),
@@ -393,6 +803,23 @@ export default function PipelineDetail() {
 				"status": mapCustomStatusToAntd("pending"),
 				"icon": <CustomStepIcon status="pending" />,
 				"data-custom-status": "pending",
+				"modelType": "cteDeployment", // 添加modelType属性
+				"jobList": [
+					{
+						id: "job-cte-1",
+						name: "构建CTE包",
+						status: "pending",
+						startTime: "",
+						logs: [],
+					},
+					{
+						id: "job-cte-2",
+						name: "部署到CTE环境",
+						status: "pending",
+						startTime: "",
+						logs: [],
+					},
+				],
 			},
 			{
 				"title": t("pipeline.detail.steps.prepareFinalCR"),
@@ -401,6 +828,23 @@ export default function PipelineDetail() {
 				"status": mapCustomStatusToAntd("pending"),
 				"icon": <CustomStepIcon status="pending" />,
 				"data-custom-status": "pending",
+				"modelType": "prepareFinalCR", // 添加modelType属性
+				"jobList": [
+					{
+						id: "job-cr-1",
+						name: "准备CR文档",
+						status: "pending",
+						startTime: "",
+						logs: [],
+					},
+					{
+						id: "job-cr-2",
+						name: "CR审核",
+						status: "pending",
+						startTime: "",
+						logs: [],
+					},
+				],
 			},
 			{
 				"title": t("pipeline.detail.steps.productionDeployment"),
@@ -409,13 +853,48 @@ export default function PipelineDetail() {
 				"status": mapCustomStatusToAntd("pending"),
 				"icon": <CustomStepIcon status="pending" />,
 				"data-custom-status": "pending",
+				"modelType": "productionDeployment", // 添加modelType属性
+				"jobList": [
+					{
+						id: "job-prod-1",
+						name: "构建生产包",
+						status: "pending",
+						startTime: "",
+						logs: [],
+					},
+					{
+						id: "job-prod-2",
+						name: "部署到生产环境",
+						status: "pending",
+						startTime: "",
+						logs: [],
+					},
+				],
 			},
 			{
-				title: t("pipeline.detail.steps.completed"),
-				description: "",
-				customStatus: "pending" as StepStatusType,
-				status: mapCustomStatusToAntd("pending"),
-				icon: <CustomStepIcon status="pending" />,
+				"title": t("pipeline.detail.steps.completed"),
+				"description": "",
+				"customStatus": "pending" as StepStatusType,
+				"status": mapCustomStatusToAntd("pending"),
+				"icon": <CustomStepIcon status="pending" />,
+				"data-custom-status": "pending",
+				"modelType": "completed", // 添加modelType属性
+				"jobList": [
+					{
+						id: "job-complete-1",
+						name: "完成部署",
+						status: "pending",
+						startTime: "",
+						logs: [],
+					},
+					{
+						id: "job-complete-2",
+						name: "发布通知",
+						status: "pending",
+						startTime: "",
+						logs: [],
+					},
+				],
 			},
 		];
 
@@ -452,6 +931,42 @@ export default function PipelineDetail() {
 		setShowPipelineDetails(false);
 		// 重置当前步骤状态，确保下次点击同一步骤时能再次打开模态框
 		setCurrentStep(-1);
+		// 重置任务列表
+		setCurrentJobs([]);
+	};
+
+	// 处理任务点击 - 不再需要，因为每个任务都会独立显示日志
+	// const handleJobClick = (jobId: string) => {
+	// 	// 查找选中的任务
+	// 	const job = currentJobs.find(job => job.id === jobId);
+	// 	if (job) {
+	// 		setSelectedJob(jobId);
+	// 		setJobLogs(job.logs || []);
+	// 		setShowJobLogs(job.status === "completed" || job.status === "running");
+	// 	}
+	// };
+
+	// 处理刷新任务日志
+	const handleRefreshJobLogs = (jobId: string) => {
+		// 查找要刷新的任务
+		const jobIndex = currentJobs.findIndex(job => job.id === jobId);
+		if (jobIndex !== -1) {
+			// 创建一个新的任务列表，以便React能检测到变化
+			const updatedJobs = [...currentJobs];
+			const job = updatedJobs[jobIndex];
+
+			// 为选中的任务生成新的日志
+			if (job.status === "completed" || job.status === "running" || job.status === "failed") {
+				// 生成新的模拟日志
+				updatedJobs[jobIndex].logs = generateMockLogs(job.name, job.status);
+
+				// 更新状态
+				setCurrentJobs(updatedJobs);
+
+				// 显示成功消息
+				window.$message?.success(`${t("pipeline.detail.jobLogs")} ${t("common.refreshSuccess")}`);
+			}
+		}
 	};
 
 	// 处理Continue按钮点击
@@ -709,7 +1224,140 @@ export default function PipelineDetail() {
 														</div>
 													)
 													: (
-														<p>{stepDetails || t("pipeline.detail.stepDetails")}</p>
+														<>
+															<p>{stepDetails || t("pipeline.detail.stepDetails")}</p>
+
+															{/* 任务列表 */}
+															{currentJobs.length > 0 && (
+																<div className="mt-4">
+																	<Divider orientation="left">{t("pipeline.detail.jobList")}</Divider>
+																	<div className="space-y-2">
+																		{currentJobs.map(job => (
+																			<div key={job.id} className="mb-4">
+																				{/* Job Header */}
+																				<div className="p-3 border rounded border-gray-200">
+																					<div className="flex justify-between items-center">
+																						<div className="flex items-center gap-2">
+																							<div className="font-medium">{job.name}</div>
+																							<Button
+																								type="text"
+																								size="small"
+																								icon={<ReloadOutlined />}
+																								onClick={() => handleRefreshJobLogs(job.id)}
+																								title="刷新日志"
+																							/>
+																						</div>
+																						<Tag color={job.status === "completed" ? "success" : job.status === "running" ? "processing" : job.status === "failed" ? "error" : "default"}>
+																							{job.status}
+																						</Tag>
+																					</div>
+																					<div className="text-sm text-gray-500 mt-2">
+																						<div>
+																							{t("pipeline.detail.startTime")}
+																							:
+																							{" "}
+																							{job.startTime || "-"}
+																						</div>
+																						{job.endTime && (
+																							<div>
+																								{t("pipeline.detail.endTime")}
+																								:
+																								{" "}
+																								{job.endTime}
+																							</div>
+																						)}
+																					</div>
+																				</div>
+
+																				{/* Job Logs */}
+																				{(job.status === "completed" || job.status === "running" || job.status === "failed") && job.logs && (
+																					<div className="mt-2">
+																						<div className={classes.logsContainer}>
+																							<pre className={classes.logs}>
+																								{job.logs.map((line, index) => {
+																									// 生成一个更稳定的key，使用行内容的哈希值和索引
+																									const lineKey = `${job.id}-${line.slice(0, 10)}-${index}`;
+
+																									// 解析不同类型的日志行并添加适当的样式
+																									if (line.includes("BUILD SUCCESS") || line.includes("Finished: SUCCESS")) {
+																										return (
+																											<span key={lineKey} className={classes.successLog}>
+																												{line}
+																											</span>
+																										);
+																									}
+																									else if (line.includes("BUILD FAILED") || line.includes("Finished: FAILURE") || line.includes("ERROR:")) {
+																										return (
+																											<span key={lineKey} className={classes.errorLog}>
+																												{line}
+																											</span>
+																										);
+																									}
+																									else if (line.match(/^\+-{2,}\+$/)) {
+																										return (
+																											<span key={lineKey} className={classes.headerLog}>
+																												{line}
+																											</span>
+																										);
+																									}
+																									else if (line.includes("[Pipeline]")) {
+																										return (
+																											<span key={lineKey} className={classes.pipelineLog}>
+																												{line}
+																											</span>
+																										);
+																									}
+																									else if (line.match(/^\[\d{2}:\d{2}:\d{2}\.\d{3}\] \+/)) {
+																										return (
+																											<span key={lineKey} className={classes.commandLog}>
+																												{line}
+																											</span>
+																										);
+																									}
+																									else if (line.match(/^\[\d{2}:\d{2}:\d{2}\.\d{3}\] \[INFO\]/)) {
+																										return (
+																											<span key={lineKey} className={classes.infoLog}>
+																												{line}
+																											</span>
+																										);
+																									}
+																									else if (line.match(/^\[\d{2}:\d{2}:\d{2}\.\d{3}\] \[DEBUG\]/)) {
+																										return (
+																											<span key={lineKey} className={classes.debugLog}>
+																												{line}
+																											</span>
+																										);
+																									}
+																									else if (line.match(/^\[\d{2}:\d{2}:\d{2}\.\d{3}\]/)) {
+																										// 为时间戳部分添加特殊样式
+																										const timestampMatch = line.match(/^(\[\d{2}:\d{2}:\d{2}\.\d{3}\])(.*)$/);
+																										if (timestampMatch) {
+																											return (
+																												<span key={lineKey} style={{ display: "block" }}>
+																													<span className={classes.timestampLog}>{timestampMatch[1]}</span>
+																													{timestampMatch[2]}
+																												</span>
+																											);
+																										}
+																									}
+																									return (
+																										<span key={lineKey} style={{ display: "block" }}>
+																											{line}
+																										</span>
+																									);
+																								})}
+																							</pre>
+																						</div>
+																					</div>
+																				)}
+																			</div>
+																		))}
+																	</div>
+																</div>
+															)}
+
+															{/* 不再需要单独的日志显示区域，因为每个任务都有自己的日志显示 */}
+														</>
 													)}
 											</div>
 										</div>

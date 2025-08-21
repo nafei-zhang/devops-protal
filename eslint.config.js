@@ -10,5 +10,6 @@ export default antfu({
 		"style/no-tabs": "off",
 		"style/jsx-indent-props": ["error", "tab"],
 		"react-hooks/exhaustive-deps": "off",
+		"react-hooks-extra/no-direct-set-state-in-use-effect": "off",
 	},
 });
