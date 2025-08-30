@@ -10,7 +10,7 @@ interface BaseModalProps {
 	title: string
 	onCancel: () => void
 	onPending: () => void
-	onContinue: () => void
+	onContinue: (values?: any) => void
 }
 
 // 开始步骤模态框
@@ -231,6 +231,22 @@ export const ReleaseSignoffModal: React.FC<BaseModalProps> = ({
 }) => {
 	const { t } = useTranslation();
 	const classes = useStyles();
+	// 使用 Form.useForm 创建表单实例
+	const [form] = Form.useForm();
+
+	// 处理表单提交
+	const handleSubmit = async () => {
+		try {
+			// 验证表单并获取表单值
+			const values = await form.validateFields();
+			// 调用 onContinue 并传递表单数据
+			onContinue && onContinue(values);
+		}
+		catch (error) {
+			// 表单验证失败
+			console.error("表单验证失败:", error);
+		}
+	};
 
 	return (
 		<Modal
@@ -243,7 +259,12 @@ export const ReleaseSignoffModal: React.FC<BaseModalProps> = ({
 			className={classes.stepModal}
 		>
 			<div className={classes.modalContent}>
-				<Form layout="vertical" className={classes.formContainer} style={{ padding: "0 10px" }}>
+				<Form
+					form={form}
+					layout="vertical"
+					className={classes.formContainer}
+					style={{ padding: "0 10px" }}
+				>
 					<Form.Item
 						label={t("pipeline.detail.crForm.scheduleStartDateTime")}
 						name="startDateTime"
@@ -275,17 +296,18 @@ export const ReleaseSignoffModal: React.FC<BaseModalProps> = ({
 					<Form.Item name="isEmergency" valuePropName="checked">
 						<Checkbox>{t("pipeline.detail.crForm.isEmergency")}</Checkbox>
 					</Form.Item>
+					<Form.Item className={classes.modalFooter} style={{ marginTop: "10px", paddingTop: "15px", marginBottom: 0 }}>
+						<Button
+							type="primary"
+							onClick={handleSubmit}
+							style={{ marginLeft: "auto" }}
+							size="large"
+							htmlType="submit"
+						>
+							{t("pipeline.detail.crForm.submit")}
+						</Button>
+					</Form.Item>
 				</Form>
-				<div className={classes.modalFooter} style={{ marginTop: "10px", paddingTop: "15px" }}>
-					<Button
-						type="primary"
-						onClick={onContinue}
-						style={{ marginLeft: "auto" }}
-						size="large"
-					>
-						{t("pipeline.detail.crForm.submit")}
-					</Button>
-				</div>
 			</div>
 		</Modal>
 	);

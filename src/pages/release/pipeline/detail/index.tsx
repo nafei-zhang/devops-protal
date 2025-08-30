@@ -114,8 +114,7 @@ export default function PipelineDetail() {
 	const [stepStatus, setStepStatus] = useState<"process" | "wait" | "finish" | "error">("process"); // 当前步骤状态
 	const [isStepLoading, setIsStepLoading] = useState<boolean>(false); // 步骤加载状态
 	const [stepDetails, setStepDetails] = useState<string>(""); // 步骤详情
-	const [modalTitle, setModalTitle] = useState<string>(""); // 模态框标题
-	const [showPipelineDetails, setShowPipelineDetails] = useState<boolean>(false); // 控制pipeline details的显示
+	// 模态框标题已集成到modalState中
 	const [currentJobs, setCurrentJobs] = useState<JobItem[]>([]); // 当前步骤的任务列表
 	// 以下状态变量在当前实现中不再使用，因为每个任务都有独立的日志显示
 	// const [selectedJob, setSelectedJob] = useState<string>(""); // 选中的任务ID
@@ -127,17 +126,14 @@ export default function PipelineDetail() {
 	// 步骤状态管理
 	const [pipelineSteps, setPipelineSteps] = useState<StepProps[]>([]);
 
-	// 各步骤模态框显示状态
-	const [startModalVisible, setStartModalVisible] = useState<boolean>(false);
-	const [staticScanningModalVisible, setStaticScanningModalVisible] = useState<boolean>(false);
-	const [devDeploymentModalVisible, setDevDeploymentModalVisible] = useState<boolean>(false);
-	const [sitEnvironmentModalVisible, setSitEnvironmentModalVisible] = useState<boolean>(false);
-	const [releaseSignoffModalVisible, setReleaseSignoffModalVisible] = useState<boolean>(false);
-	const [cteDeploymentModalVisible, setCteDeploymentModalVisible] = useState<boolean>(false);
-	const [prepareFinalCRModalVisible, setPrepareFinalCRModalVisible] = useState<boolean>(false);
-	const [productionDeploymentModalVisible, setProductionDeploymentModalVisible] = useState<boolean>(false);
-	const [completedModalVisible, setCompletedModalVisible] = useState<boolean>(false);
-	const [defaultModalVisible, setDefaultModalVisible] = useState<boolean>(false);
+	// 统一的模态框状态管理
+	const [modalState, setModalState] = useState<{
+		visibleType: string | null
+		title: string
+	}>({ visibleType: null, title: "" });
+
+	// 控制pipeline details的显示
+	const [showPipelineDetails, setShowPipelineDetails] = useState<boolean>(false);
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -281,34 +277,32 @@ export default function PipelineDetail() {
 		}
 	};
 
-	// 关闭所有模态框
-	const closeAllModals = () => {
-		setStartModalVisible(false);
-		setStaticScanningModalVisible(false);
-		setDevDeploymentModalVisible(false);
-		setSitEnvironmentModalVisible(false);
-		setReleaseSignoffModalVisible(false);
-		setCteDeploymentModalVisible(false);
-		setPrepareFinalCRModalVisible(false);
-		setProductionDeploymentModalVisible(false);
-		setCompletedModalVisible(false);
-		setDefaultModalVisible(false);
-	};
-
-	// 模态框策略对象 - 根据modelType显示不同的模态框
+	// 模态框策略对象 - 统一管理模态框的展示和关闭
 	const modalStrategy = {
-		start: () => setStartModalVisible(true),
-		staticScanning: () => setStaticScanningModalVisible(true),
-		devDeployment: () => setDevDeploymentModalVisible(true),
-		sitEnvironment: () => setSitEnvironmentModalVisible(true),
-		releaseSignoff: () => setReleaseSignoffModalVisible(true),
-		cteDeployment: () => setCteDeploymentModalVisible(true),
-		prepareFinalCR: () => setPrepareFinalCRModalVisible(true),
-		productionDeployment: () => setProductionDeploymentModalVisible(true),
-		completed: () => setCompletedModalVisible(true),
-		default: () => setDefaultModalVisible(true),
-		// 如果没有指定modelType，则显示pipeline details
-		showDetails: () => setShowPipelineDetails(true),
+		// 显示指定类型的模态框
+		show: (type: string, title: string = "") => {
+			// 关闭pipeline details
+			setShowPipelineDetails(false);
+			// 设置当前显示的模态框类型和标题
+			setModalState({ visibleType: type, title });
+		},
+
+		// 关闭所有模态框
+		closeAll: () => {
+			setModalState({ visibleType: null, title: "" });
+			setShowPipelineDetails(false);
+		},
+
+		// 显示pipeline details
+		showDetails: (title: string = "") => {
+			setModalState({ visibleType: null, title });
+			setShowPipelineDetails(true);
+		},
+
+		// 检查指定类型的模态框是否显示
+		isVisible: (type: string): boolean => {
+			return modalState.visibleType === type;
+		},
 	};
 
 	// 处理步骤点击
@@ -323,54 +317,28 @@ export default function PipelineDetail() {
 			// 更新步骤详情
 			setStepDetails(getStepDetails(current));
 
-			// 设置模态框标题
-			setModalTitle(pipelineSteps[current]?.title || "");
+			// 获取当前步骤的标题
+			const title = pipelineSteps[current]?.title || "";
 
 			// 关闭所有模态框
-			closeAllModals();
+			modalStrategy.closeAll();
 
 			// 加载当前步骤的任务列表
 			if (pipelineSteps[current]?.jobList) {
 				setCurrentJobs(pipelineSteps[current].jobList);
-
-				// 如果有正在运行的任务，自动选中它
-				// const runningJob = pipelineSteps[current].jobList.find(job => job.status === "running"); // 已注释，因为我们不再使用这个变量
-				if (pipelineSteps[current].jobList.find(job => job.status === "running")) {
-					// setSelectedJob(pipelineSteps[current].jobList.find(job => job.status === "running").id); // 已注释，因为我们不再使用这个状态
-					// setJobLogs(pipelineSteps[current].jobList.find(job => job.status === "running").logs || []); // 已注释，因为我们不再使用这个状态
-					// setShowJobLogs(true); // 已注释，因为我们不再使用这个状态
-				}
-				else if (pipelineSteps[current].jobList.length > 0) {
-					// 否则选中第一个任务
-					// const firstJob = pipelineSteps[current].jobList[0]; // 已注释，因为我们不再使用这个变量
-					// setSelectedJob(pipelineSteps[current].jobList[0].id); // 已注释，因为我们不再使用这个状态
-					// setJobLogs(pipelineSteps[current].jobList[0].logs || []); // 已注释，因为我们不再使用这个状态
-					// setShowJobLogs(pipelineSteps[current].jobList[0].status === "completed" || pipelineSteps[current].jobList[0].status === "running"); // 已注释，因为我们不再使用这个状态
-				}
-				else {
-					// 没有任务时重置状态
-					// setSelectedJob(""); // 已注释，因为我们不再使用这个状态
-					// setJobLogs([]); // 已注释，因为我们不再使用这个状态
-					// setShowJobLogs(false); // 已注释，因为我们不再使用这个状态
-				}
 			}
 			else {
 				// 没有任务列表时重置状态
 				setCurrentJobs([]);
-				// setSelectedJob(""); // 已注释，因为我们不再使用这个状态
-				// setJobLogs([]); // 已注释，因为我们不再使用这个状态
-				// setShowJobLogs(false); // 已注释，因为我们不再使用这个状态
 			}
-
-			// 使用策略模式显示模态框或pipeline details
-			setShowPipelineDetails(false); // 默认不显示pipeline details
 
 			// 获取当前步骤的modelType
 			const modelType = pipelineSteps[current]?.modelType;
 
-			if (modelType && modalStrategy[modelType]) {
-				// 如果有modelType并且策略对象中有对应的处理函数，则调用该函数
-				modalStrategy[modelType]();
+			// 使用策略模式显示模态框或pipeline details
+			if (modelType) {
+				// 如果有modelType，则显示对应的模态框
+				modalStrategy.show(modelType, title);
 			}
 			else if (current <= 2) {
 				// 前三个步骤默认显示pipeline details
@@ -378,7 +346,7 @@ export default function PipelineDetail() {
 			}
 			else {
 				// 其他情况显示默认模态框
-				modalStrategy.default();
+				modalStrategy.show("default", title);
 			}
 
 			setIsStepLoading(false);
@@ -912,10 +880,8 @@ export default function PipelineDetail() {
 		if (runningStepIndex !== -1) {
 			// 设置当前步骤为Running状态的步骤
 			setCurrentStep(runningStepIndex);
-			// 设置模态框标题
-			setModalTitle(updatedSteps[runningStepIndex]?.title || "");
-			// 显示pipeline details
-			setShowPipelineDetails(true);
+			// 设置模态框标题并显示pipeline details
+			modalStrategy.showDetails(updatedSteps[runningStepIndex]?.title || "");
 		}
 	}, [t]);
 
@@ -926,9 +892,7 @@ export default function PipelineDetail() {
 		setPipelineSteps(updatedSteps);
 		setStepStatus("wait");
 		// 关闭所有模态框
-		closeAllModals();
-		// 不显示pipeline details
-		setShowPipelineDetails(false);
+		modalStrategy.closeAll();
 		// 重置当前步骤状态，确保下次点击同一步骤时能再次打开模态框
 		setCurrentStep(-1);
 		// 重置任务列表
@@ -975,10 +939,8 @@ export default function PipelineDetail() {
 		const updatedSteps = updateStepStatus(currentStep, "running");
 		setPipelineSteps(updatedSteps);
 		setStepStatus("process");
-		// 关闭所有模态框
-		closeAllModals();
-		// 显示pipeline details
-		setShowPipelineDetails(true);
+		// 关闭所有模态框并显示pipeline details
+		modalStrategy.showDetails(updatedSteps[currentStep]?.title || "");
 		// 重置当前步骤状态，确保下次点击同一步骤时能再次打开模态框
 		// setCurrentStep(-1);
 	};
@@ -986,9 +948,7 @@ export default function PipelineDetail() {
 	// 关闭模态框
 	const handleModalCancel = () => {
 		// 关闭所有模态框
-		closeAllModals();
-		// 不显示pipeline details
-		setShowPipelineDetails(false);
+		modalStrategy.closeAll();
 		// 重置当前步骤状态，确保下次点击同一步骤时能再次打开模态框
 		setCurrentStep(-1);
 	};
@@ -1002,80 +962,80 @@ export default function PipelineDetail() {
 		<BasicContent>
 			{/* 各步骤对应的模态框 */}
 			<StartModal
-				open={startModalVisible}
-				title={modalTitle}
+				open={modalStrategy.isVisible("start")}
+				title={modalState.title}
 				onCancel={handleModalCancel}
 				onPending={handlePendingClick}
 				onContinue={handleContinueClick}
 			/>
 
 			<StaticScanningModal
-				open={staticScanningModalVisible}
-				title={modalTitle}
+				open={modalStrategy.isVisible("staticScanning")}
+				title={modalState.title}
 				onCancel={handleModalCancel}
 				onPending={handlePendingClick}
 				onContinue={handleContinueClick}
 			/>
 
 			<DevDeploymentModal
-				open={devDeploymentModalVisible}
-				title={modalTitle}
+				open={modalStrategy.isVisible("devDeployment")}
+				title={modalState.title}
 				onCancel={handleModalCancel}
 				onPending={handlePendingClick}
 				onContinue={handleContinueClick}
 			/>
 
 			<SitEnvironmentModal
-				open={sitEnvironmentModalVisible}
-				title={modalTitle}
+				open={modalStrategy.isVisible("sitEnvironment")}
+				title={modalState.title}
 				onCancel={handleModalCancel}
 				onPending={handlePendingClick}
 				onContinue={handleContinueClick}
 			/>
 
 			<ReleaseSignoffModal
-				open={releaseSignoffModalVisible}
-				title={modalTitle}
+				open={modalStrategy.isVisible("releaseSignoff")}
+				title={modalState.title}
 				onCancel={handleModalCancel}
 				onPending={handlePendingClick}
 				onContinue={handleContinueClick}
 			/>
 
 			<CteDeploymentModal
-				open={cteDeploymentModalVisible}
-				title={modalTitle}
+				open={modalStrategy.isVisible("cteDeployment")}
+				title={modalState.title}
 				onCancel={handleModalCancel}
 				onPending={handlePendingClick}
 				onContinue={handleContinueClick}
 			/>
 
 			<PrepareFinalCRModal
-				open={prepareFinalCRModalVisible}
-				title={modalTitle}
+				open={modalStrategy.isVisible("prepareFinalCR")}
+				title={modalState.title}
 				onCancel={handleModalCancel}
 				onPending={handlePendingClick}
 				onContinue={handleContinueClick}
 			/>
 
 			<ProductionDeploymentModal
-				open={productionDeploymentModalVisible}
-				title={modalTitle}
+				open={modalStrategy.isVisible("productionDeployment")}
+				title={modalState.title}
 				onCancel={handleModalCancel}
 				onPending={handlePendingClick}
 				onContinue={handleContinueClick}
 			/>
 
 			<CompletedModal
-				open={completedModalVisible}
-				title={modalTitle}
+				open={modalStrategy.isVisible("completed")}
+				title={modalState.title}
 				onCancel={handleModalCancel}
 				onPending={handlePendingClick}
 				onContinue={handleContinueClick}
 			/>
 
 			<DefaultModal
-				open={defaultModalVisible}
-				title={modalTitle}
+				open={modalStrategy.isVisible("default")}
+				title={modalState.title}
 				onCancel={handleModalCancel}
 				onPending={handlePendingClick}
 				onContinue={handleContinueClick}
