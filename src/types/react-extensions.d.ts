@@ -1,7 +1,7 @@
-type CrossOriginType = "anonymous" | "use-credentials" | "" | undefined;
+import type React from "react";
 
 declare module "react" {
-	interface IframeHTMLAttributes<T> extends HTMLAttributes<T> {
-		crossOrigin?: CrossOriginType
+	interface IframeHTMLAttributes<T> extends React.HTMLAttributes<T> {
+		crossOrigin?: "anonymous" | "use-credentials" | "" | undefined
 	}
 }

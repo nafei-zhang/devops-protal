@@ -1,5 +1,7 @@
-import type { ReactNode } from "react";
+import type React from "react";
 import type { IndexRouteObject, NonIndexRouteObject, createBrowserRouter as RemixRouter } from "react-router";
+
+type ReactNode = React.ReactNode;
 
 export interface IndexRouteMeta extends Omit<IndexRouteObject, "id"> {
 	redirect?: string

@@ -1,5 +1,5 @@
 /* eslint-disable react/no-comment-textnodes */
-import { isValidElement } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import { useMatches } from "react-router";
 
@@ -7,7 +7,6 @@ import { useMatches } from "react-router";
 import "./iframe.css";
 
 // 定义 crossOrigin 的可能值类型
-type CrossOriginType = "anonymous" | "use-credentials" | "" | undefined;
 
 export function Iframe() {
 	const matches = useMatches();
@@ -15,10 +14,9 @@ export function Iframe() {
 	const currentRoute = matches[matches.length - 1];
 	const iframeLink = currentRoute.handle?.iframeLink;
 	const routeTitle = currentRoute.handle?.title;
-	const crossOrigin = (currentRoute.handle as { crossOrigin?: CrossOriginType })?.crossOrigin;
 
 	const title = (
-		isValidElement(routeTitle) ? t(routeTitle?.props.children) : routeTitle
+		React.isValidElement(routeTitle) ? t(routeTitle?.props.children) : routeTitle
 	) as string;
 
 	return iframeLink
@@ -34,7 +32,7 @@ export function Iframe() {
 					loading="lazy"
 					className="iframe-content"
 					style={{ width: "100%", height: "100%" }}
-					crossOrigin={crossOrigin as CrossOriginType}
+					crossOrigin="anonymous"
 				/>
 			</div>
 		)
